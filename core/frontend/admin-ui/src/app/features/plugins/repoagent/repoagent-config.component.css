@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+input[type='checkbox'] {
+  accent-color: #38bdf8;
+}
+
+button {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}

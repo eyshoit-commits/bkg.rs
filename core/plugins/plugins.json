@@ -1,0 +1,149 @@
+[
+  {
+    "name": "llmserver",
+    "description": "Rust-based LLM server with chat and embedding capabilities",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": true,
+    "capabilities": ["llm.chat", "llm.embed"],
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 15
+    }
+  },
+  {
+    "name": "repoagent",
+    "description": "Python RepoAgent integration",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": false,
+    "capabilities": [
+      "repo.analyze",
+      "repo.patch",
+      "repo.tree",
+      "repo.file.read",
+      "repo.file.write",
+      "repo.search",
+      "repo.command",
+      "repo.commit"
+    ],
+    "settings": {
+      "defaultRoot": "/workspace",
+      "workspaceRoots": [
+        "/workspace",
+        "/workspace/bkg.rs"
+      ],
+      "maxFiles": 750,
+      "ignoreGlobs": [
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/tmp/**",
+        "**/.cache/**"
+      ],
+      "commandAllowlist": [
+        {
+          "name": "lint",
+          "executable": ["npm", "run", "lint"],
+          "timeoutSeconds": 600,
+          "allowArgs": false
+        },
+        {
+          "name": "unit-tests",
+          "executable": ["npm", "test"],
+          "timeoutSeconds": 900,
+          "allowArgs": false
+        },
+        {
+          "name": "cargo-test",
+          "executable": ["cargo", "test", "--release"],
+          "timeoutSeconds": 1200,
+          "allowArgs": false
+        }
+      ],
+      "environment": {},
+      "enableGit": true,
+      "telemetry": {
+        "sampleIntervalSeconds": 15
+      }
+    },
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 30
+    }
+  },
+  {
+    "name": "apikeys",
+    "description": "Authentication and API key management",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": true,
+    "capabilities": [
+      "auth.login",
+      "auth.createKey",
+      "auth.revokeKey",
+      "auth.listKeys",
+      "auth.validate"
+    ],
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 15
+    }
+  },
+  {
+    "name": "brainml",
+    "description": "Hybrid retrieval and pipeline orchestration",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": false,
+    "capabilities": [
+      "brainml.index",
+      "brainml.query",
+      "brainml.train",
+      "brainml.stats",
+      "brainml.admin"
+    ],
+    "healthcheck": {
+      "path": "/health/ready",
+      "intervalSeconds": 20
+    }
+  },
+  {
+    "name": "candle",
+    "description": "Candle-based tensor runtime and model execution",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": false,
+    "capabilities": [
+      "candle.model.load",
+      "candle.model.run",
+      "candle.stats"
+    ],
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 15
+    }
+  },
+  {
+    "name": "rustyface",
+    "description": "Face embedding and dataset management runtime",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": false,
+    "capabilities": [
+      "faces.encode",
+      "faces.search",
+      "dataset.manage"
+    ],
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 15
+    }
+  }
+]
