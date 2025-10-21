@@ -3,7 +3,7 @@ version: '3.8'
 services:
   bkg:
     build:
-      context: ../..
+      context: .
       dockerfile: devops/docker/Dockerfile
       args:
         CHAT_MODEL_FILE: Qwen2-0.5B-Instruct-Q5_K_M.gguf

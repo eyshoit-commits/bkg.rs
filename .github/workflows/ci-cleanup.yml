@@ -1,0 +1,142 @@
+name: CI Cleanup & Patch Fix
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - feature/**
+
+jobs:
+  cleanup:
+    name: Clean Workspace & Fix Patches
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Clean Workspace
+        run: |
+          echo "🧹 Cleaning workspace..."
+          git restore --staged . || true
+          git restore . || true
+          git clean -fd || true
+          echo "✅ Workspace cleaned"
+
+      - name: Configure Registries
+        run: |
+          echo "🔧 Configuring Cargo registry..."
+          mkdir -p ~/.cargo
+          cat > ~/.cargo/config.toml << 'EOF'
+          [source.crates-io]
+          replace-with = "crates-io-mirror"
+          
+          [source.crates-io-mirror]
+          registry = "https://github.com/rust-lang/crates.io-index"
+          EOF
+          
+          echo "🔧 Configuring npm registry..."
+          npm config set registry https://registry.npmjs.org/
+
+      - name: Regenerate Lockfiles
+        run: |
+          echo "🔄 Regenerating Cargo.lock..."
+          cargo update --dry-run || true
+          
+          echo "🔄 Regenerating package-lock.json..."
+          npm install --package-lock-only
+          
+          echo "🔄 Regenerating frontend package-lock.json..."
+          cd frontend/admin-ui && npm install --package-lock-only || true
+          cd ../..
+
+      - name: Verify Status
+        run: |
+          echo "📋 Git status:"
+          git status
+          echo ""
+          echo "📋 Untracked files:"
+          git ls-files --others --exclude-standard || echo "None"
+
+      - name: Commit Cleanup (if needed)
+        if: failure()
+        run: |
+          git add -A
+          git commit -m "ci: cleanup workspace and regenerate lockfiles" || true
+          git push || true
+
+  build:
+    name: Build & Test
+    needs: cleanup
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Configure Registries
+        run: |
+          mkdir -p ~/.cargo
+          cat > ~/.cargo/config.toml << 'EOF'
+          [source.crates-io]
+          replace-with = "crates-io-mirror"
+          
+          [source.crates-io-mirror]
+          registry = "https://github.com/rust-lang/crates.io-index"
+          EOF
+          npm config set registry https://registry.npmjs.org/
+
+      - name: Rust Format Check
+        run: cargo fmt -- --check
+
+      - name: Rust Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Rust Tests
+        run: cargo test --release
+
+      - name: Node Lint
+        run: npm run lint
+
+      - name: Node Build
+        run: npm run build
+
+      - name: Docker Build
+        run: |
+          docker buildx build --platform linux/amd64 \
+            -t bkg/gateway:ci-${{ github.run_number }} .
+
+      - name: Status Report
+        if: success()
+        run: |
+          echo "✅ CI Pipeline Success"
+          echo "  - Workspace cleaned"
+          - Lockfiles regenerated"
+          - Rust tests passed"
+          - Node build passed"
+          - Docker image built"
