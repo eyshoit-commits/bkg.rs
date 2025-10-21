@@ -17,6 +17,11 @@
     "hatchRate": 5,
     "runTimeSeconds": 60,
     "timeoutSeconds": 30,
+    "startupTimeSeconds": 5,
+    "gracefulStopSeconds": 10,
+    "throttleRps": 0,
+    "stickyCookies": true,
+    "followRedirects": true,
     "globalHeaders": {
       "User-Agent": "bkg-goose/0.1"
     },

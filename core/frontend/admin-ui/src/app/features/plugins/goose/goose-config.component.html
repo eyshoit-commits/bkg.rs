@@ -51,9 +51,57 @@
           (ngModelChange)="emitSettings()"
         />
       </label>
+      <label class="flex flex-col text-xs text-slate-300">
+        Startup-Verzögerung (Sekunden)
+        <input
+          type="number"
+          min="0"
+          class="mt-1 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
+          [(ngModel)]="editing.startupTimeSeconds"
+          (ngModelChange)="emitSettings()"
+        />
+      </label>
+      <label class="flex flex-col text-xs text-slate-300">
+        Graceful Stop (Sekunden)
+        <input
+          type="number"
+          min="0"
+          class="mt-1 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
+          [(ngModel)]="editing.gracefulStopSeconds"
+          (ngModelChange)="emitSettings()"
+        />
+      </label>
+      <label class="flex flex-col text-xs text-slate-300">
+        RPS-Limit (0 = deaktiviert)
+        <input
+          type="number"
+          min="0"
+          class="mt-1 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
+          [ngModel]="editing.throttleRps ?? 0"
+          (ngModelChange)="onThrottleChange($event)"
+        />
+      </label>
+      <label class="flex flex-col text-xs text-slate-300">
+        Historien-Limit
+        <input
+          type="number"
+          min="1"
+          class="mt-1 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
+          [(ngModel)]="editing.maxHistory"
+          (ngModelChange)="emitSettings()"
+        />
+      </label>
       <label class="flex items-center gap-2 text-xs text-slate-300">
         <input type="checkbox" [(ngModel)]="editing.verifyTls" (ngModelChange)="emitSettings()" />
         TLS-Zertifikate prüfen
+      </label>
+      <label class="flex items-center gap-2 text-xs text-slate-300">
+        <input type="checkbox" [(ngModel)]="editing.stickyCookies" (ngModelChange)="emitSettings()" />
+        Sticky Cookies aktiv
+      </label>
+      <label class="flex items-center gap-2 text-xs text-slate-300">
+        <input type="checkbox" [(ngModel)]="editing.followRedirects" (ngModelChange)="emitSettings()" />
+        Redirects folgen
       </label>
     </div>
   </section>
@@ -213,7 +261,7 @@
 
   <section class="rounded-xl border border-slate-800/70 bg-black/30 p-4 space-y-3">
     <h4 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Aktueller Status</h4>
-    <div *ngIf="status; else noStatus" class="grid gap-3 md:grid-cols-2">
+    <div *ngIf="status; else noStatus" class="grid gap-3 md:grid-cols-3">
       <div class="rounded border border-slate-800 bg-slate-950/70 p-3 text-xs text-slate-300">
         <div><span class="text-slate-500">Status:</span> {{ status?.status }}</div>
         <div><span class="text-slate-500">Run ID:</span> {{ status?.runId || '–' }}</div>
@@ -227,6 +275,21 @@
         <div><span class="text-slate-500">Durchsatz:</span> {{ status?.metrics.requestsPerSecond | number: '1.1-1' }} req/s</div>
         <div><span class="text-slate-500">p95:</span> {{ status?.metrics.p95LatencyMs | number: '1.1-1' }} ms</div>
         <div><span class="text-slate-500">p99:</span> {{ status?.metrics.p99LatencyMs | number: '1.1-1' }} ms</div>
+      </div>
+      <div class="rounded border border-slate-800 bg-slate-950/70 p-3 text-xs text-slate-300">
+        <div><span class="text-slate-500">Target:</span> {{ status?.settings.target }}</div>
+        <div><span class="text-slate-500">VU:</span> {{ status?.settings.users }}</div>
+        <div><span class="text-slate-500">Ramp-Up:</span> {{ status?.settings.hatchRate }} /s</div>
+        <div><span class="text-slate-500">Runtime:</span> {{ status?.settings.runTimeSeconds }} s</div>
+        <div><span class="text-slate-500">Timeout:</span> {{ status?.settings.timeoutSeconds }} s</div>
+        <div><span class="text-slate-500">Startup Delay:</span> {{ status?.settings.startupTimeSeconds }} s</div>
+        <div><span class="text-slate-500">Graceful Stop:</span> {{ status?.settings.gracefulStopSeconds }} s</div>
+        <div>
+          <span class="text-slate-500">Throttle:</span>
+          {{ status?.settings.throttleRps !== null && status?.settings.throttleRps !== undefined ? status?.settings.throttleRps + ' rps' : 'deaktiviert' }}
+        </div>
+        <div><span class="text-slate-500">Sticky Cookies:</span> {{ status?.settings.stickyCookies ? 'ja' : 'nein' }}</div>
+        <div><span class="text-slate-500">Redirects:</span> {{ status?.settings.followRedirects ? 'ja' : 'nein' }}</div>
       </div>
     </div>
     <ng-template #noStatus>

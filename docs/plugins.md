@@ -76,13 +76,14 @@ Every dashboard surfaces the capabilities advertised over the plug-in bus and wi
 
 - Rust/Tokio runtime that orchestrates HTTP load tests using the Goose engine while surfacing control and telemetry through the
   plug-in bus.
-- Supports configurable targets, virtual users, hatch rates, request schedules (with per-request headers, bodies, and query
-  parameters), and max history retention defined in `config.json`.
+- Supports configurable targets, virtual users, hatch rates, startup delay, graceful stop, global RPS throttling, request
+  schedules (with per-request headers, bodies, and query parameters), and max history retention defined in `config.json`.
 - Streams structured telemetry (CPU, memory, total requests) via `sysinfo` and exposes a JSON schema so the admin UI renders a
   full scenario editor (`GooseConfigComponent`).
 - Registers capabilities `goose.run`, `goose.stop`, `goose.status`, and `goose.history`, all of which are proxied by the
   `GooseController` in the NestJS gateway.
-- Persists runtime configuration snapshots so restarted plug-ins honour admin changes without manual file edits.
+- Persists runtime configuration snapshots and bounded run history (`history.json`), so restarted plug-ins honour admin
+  changes without manual file edits and operators retain observability across restarts.
 - Detailed reference: [`docs/plugins/goose.md`](plugins/goose.md).
 
 ### apikeys (NodeJS)

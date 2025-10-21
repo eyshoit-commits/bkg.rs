@@ -85,6 +85,32 @@ class GooseRunDto {
   verifyTls?: boolean;
 
   @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(3600)
+  startupTimeSeconds?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(3600)
+  gracefulStopSeconds?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100000)
+  throttleRps?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  stickyCookies?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  followRedirects?: boolean;
+
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => GooseScheduleEntryDto)
   schedule?: GooseScheduleEntryDto[];

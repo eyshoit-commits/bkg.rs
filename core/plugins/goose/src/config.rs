@@ -41,8 +41,13 @@ static CONFIG_SCHEMA: Lazy<Value> = Lazy::new(|| {
             "hatchRate": {"type": "integer", "minimum": 1, "maximum": 100000, "description": "Users spawned per second"},
             "runTimeSeconds": {"type": "integer", "minimum": 1, "maximum": 86400, "description": "Total run time in seconds"},
             "timeoutSeconds": {"type": "integer", "minimum": 1, "maximum": 600, "description": "HTTP request timeout in seconds"},
+            "startupTimeSeconds": {"type": "integer", "minimum": 0, "maximum": 3600, "default": 5, "description": "Delay before spawning the first user"},
+            "gracefulStopSeconds": {"type": "integer", "minimum": 0, "maximum": 3600, "default": 10, "description": "Grace period to allow in-flight requests to complete before forcefully stopping"},
+            "throttleRps": {"type": "integer", "minimum": 0, "maximum": 100000, "default": 0, "description": "Global requests-per-second throttle (0 disables throttling)"},
             "globalHeaders": {"type": "object", "additionalProperties": {"type": "string"}},
             "verifyTls": {"type": "boolean", "default": true},
+            "stickyCookies": {"type": "boolean", "default": true, "description": "Enable an HTTP cookie store per user"},
+            "followRedirects": {"type": "boolean", "default": true, "description": "Follow HTTP redirects returned by the target"},
             "maxHistory": {"type": "integer", "minimum": 1, "maximum": 200, "default": 20},
             "schedule": {
                 "type": "array",

@@ -346,8 +346,16 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
       hatchRate: settings.hatchRate ?? 5,
       runTimeSeconds: settings.runTimeSeconds ?? 60,
       timeoutSeconds: settings.timeoutSeconds ?? 30,
+      startupTimeSeconds: settings.startupTimeSeconds ?? 5,
+      gracefulStopSeconds: settings.gracefulStopSeconds ?? 10,
+      throttleRps:
+        typeof settings.throttleRps === 'number' && settings.throttleRps > 0
+          ? Math.floor(settings.throttleRps)
+          : null,
       globalHeaders: { ...(settings.globalHeaders ?? {}) },
       verifyTls: settings.verifyTls ?? true,
+      stickyCookies: settings.stickyCookies ?? true,
+      followRedirects: settings.followRedirects ?? true,
       maxHistory: settings.maxHistory ?? 20,
       schedule: Array.isArray(settings.schedule)
         ? settings.schedule.map((entry) => ({

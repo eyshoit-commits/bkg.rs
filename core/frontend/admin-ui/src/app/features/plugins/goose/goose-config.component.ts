@@ -107,6 +107,20 @@ export class GooseConfigComponent implements OnInit, OnChanges {
     this.emitSettings();
   }
 
+  onThrottleChange(value: string | number | null): void {
+    if (value === null || value === '') {
+      this.editing.throttleRps = null;
+    } else {
+      const numeric = typeof value === 'number' ? value : Number(value);
+      if (!Number.isFinite(numeric) || numeric <= 0) {
+        this.editing.throttleRps = null;
+      } else {
+        this.editing.throttleRps = Math.floor(numeric);
+      }
+    }
+    this.emitSettings();
+  }
+
   async run(): Promise<void> {
     if (!this.canRun) {
       this.actionError = 'Plug-in muss laufen, bevor ein Test gestartet werden kann.';
@@ -182,8 +196,13 @@ export class GooseConfigComponent implements OnInit, OnChanges {
       hatchRate: this.editing.hatchRate,
       runTimeSeconds: this.editing.runTimeSeconds,
       timeoutSeconds: this.editing.timeoutSeconds,
+      startupTimeSeconds: this.editing.startupTimeSeconds,
+      gracefulStopSeconds: this.editing.gracefulStopSeconds,
+      throttleRps: this.editing.throttleRps ?? undefined,
       globalHeaders: this.editing.globalHeaders,
       verifyTls: this.editing.verifyTls,
+      stickyCookies: this.editing.stickyCookies,
+      followRedirects: this.editing.followRedirects,
       schedule: this.editing.schedule.map((entry) => ({
         name: entry.name,
         method: entry.method,
@@ -199,6 +218,9 @@ export class GooseConfigComponent implements OnInit, OnChanges {
 
   private syncFromInput(): void {
     this.editing = JSON.parse(JSON.stringify(this.settings)) as GooseSettings;
+    if (this.editing.throttleRps === undefined || this.editing.throttleRps === 0) {
+      this.editing.throttleRps = null;
+    }
     this.globalHeaders = this.toRows(this.editing.globalHeaders);
     this.scheduleHeadersText = this.editing.schedule.map((entry) => this.mapToLines(entry.headers ?? {}));
     this.scheduleQueriesText = this.editing.schedule.map((entry) => this.mapToLines(entry.query ?? {}));

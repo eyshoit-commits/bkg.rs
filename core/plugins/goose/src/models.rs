@@ -38,10 +38,20 @@ pub struct GooseSettings {
     pub run_time_seconds: u64,
     #[serde(default = "default_timeout", rename = "timeoutSeconds")]
     pub timeout_seconds: u64,
+    #[serde(default = "default_startup_time", rename = "startupTimeSeconds")]
+    pub startup_time_seconds: u64,
+    #[serde(default = "default_graceful_stop", rename = "gracefulStopSeconds")]
+    pub graceful_stop_seconds: u64,
+    #[serde(default, rename = "throttleRps")]
+    pub throttle_rps: Option<u32>,
     #[serde(default, rename = "globalHeaders")]
     pub global_headers: HashMap<String, String>,
     #[serde(default = "default_verify_tls", rename = "verifyTls")]
     pub verify_tls: bool,
+    #[serde(default = "default_sticky_cookies", rename = "stickyCookies")]
+    pub sticky_cookies: bool,
+    #[serde(default = "default_follow_redirects", rename = "followRedirects")]
+    pub follow_redirects: bool,
     #[serde(default = "default_max_history", rename = "maxHistory")]
     pub max_history: usize,
     #[serde(default)]
@@ -64,6 +74,16 @@ pub struct GooseRunRequest {
     pub global_headers: Option<HashMap<String, String>>,
     #[serde(default, rename = "verifyTls")]
     pub verify_tls: Option<bool>,
+    #[serde(default, rename = "startupTimeSeconds")]
+    pub startup_time_seconds: Option<u64>,
+    #[serde(default, rename = "gracefulStopSeconds")]
+    pub graceful_stop_seconds: Option<u64>,
+    #[serde(default, rename = "throttleRps")]
+    pub throttle_rps: Option<u32>,
+    #[serde(default, rename = "stickyCookies")]
+    pub sticky_cookies: Option<bool>,
+    #[serde(default, rename = "followRedirects")]
+    pub follow_redirects: Option<bool>,
     #[serde(default)]
     pub schedule: Option<Vec<GooseScheduleEntry>>,
 }
@@ -149,6 +169,16 @@ pub struct GooseEffectiveSettings {
     pub timeout_seconds: u64,
     #[serde(rename = "verifyTls")]
     pub verify_tls: bool,
+    #[serde(default = "default_startup_time", rename = "startupTimeSeconds")]
+    pub startup_time_seconds: u64,
+    #[serde(default = "default_graceful_stop", rename = "gracefulStopSeconds")]
+    pub graceful_stop_seconds: u64,
+    #[serde(default, rename = "throttleRps")]
+    pub throttle_rps: Option<u32>,
+    #[serde(default = "default_sticky_cookies", rename = "stickyCookies")]
+    pub sticky_cookies: bool,
+    #[serde(default = "default_follow_redirects", rename = "followRedirects")]
+    pub follow_redirects: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -196,6 +226,22 @@ fn default_run_time() -> u64 {
 
 fn default_timeout() -> u64 {
     30
+}
+
+fn default_startup_time() -> u64 {
+    5
+}
+
+fn default_graceful_stop() -> u64 {
+    10
+}
+
+fn default_sticky_cookies() -> bool {
+    true
+}
+
+fn default_follow_redirects() -> bool {
+    true
 }
 
 fn default_verify_tls() -> bool {

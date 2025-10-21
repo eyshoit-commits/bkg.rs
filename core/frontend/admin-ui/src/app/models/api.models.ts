@@ -75,8 +75,13 @@ export interface GooseSettings {
   hatchRate: number;
   runTimeSeconds: number;
   timeoutSeconds: number;
+  startupTimeSeconds: number;
+  gracefulStopSeconds: number;
+  throttleRps: number | null;
   globalHeaders: Record<string, string>;
   verifyTls: boolean;
+  stickyCookies: boolean;
+  followRedirects: boolean;
   maxHistory: number;
   schedule: GooseScheduleEntry[];
 }
@@ -87,8 +92,13 @@ export interface GooseRunRequest {
   hatchRate?: number;
   runTimeSeconds?: number;
   timeoutSeconds?: number;
+  startupTimeSeconds?: number;
+  gracefulStopSeconds?: number;
+  throttleRps?: number | null;
   globalHeaders?: Record<string, string>;
   verifyTls?: boolean;
+  stickyCookies?: boolean;
+  followRedirects?: boolean;
   schedule?: GooseScheduleEntry[];
 }
 
@@ -111,6 +121,11 @@ export interface GooseEffectiveSettings {
   runTimeSeconds: number;
   timeoutSeconds: number;
   verifyTls: boolean;
+  startupTimeSeconds: number;
+  gracefulStopSeconds: number;
+  throttleRps?: number | null;
+  stickyCookies: boolean;
+  followRedirects: boolean;
 }
 
 export interface GooseStatus {

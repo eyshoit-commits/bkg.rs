@@ -34,7 +34,21 @@ async fn main() -> Result<()> {
         .context("failed to bind goose HTTP listener")?;
     let http_addr: SocketAddr = http_listener.local_addr()?;
 
-    let manager = LoadTestManager::new(plugin_config.settings.clone(), config_path.clone());
+    let history_path = env::var("BKG_PLUGIN_HISTORY_PATH")
+        .ok()
+        .map(PathBuf::from)
+        .or_else(|| {
+            config_path
+                .as_ref()
+                .and_then(|path| path.parent().map(|dir| dir.join("history.json")))
+        })
+        .or_else(|| Some(PathBuf::from("history.json")));
+
+    let manager = LoadTestManager::new(
+        plugin_config.settings.clone(),
+        config_path.clone(),
+        history_path,
+    );
 
     let (shutdown_tx, _) = broadcast::channel::<()>(4);
     let http_shutdown = shutdown_tx.clone();
