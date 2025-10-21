@@ -44,6 +44,10 @@ export class ApiService {
     return this.http.post<{ status: string }>(`${this.baseUrl}/admin/plugins/${name}/stop`, {});
   }
 
+  restartPlugin(name: string): Observable<PluginState> {
+    return this.http.post<PluginState>(`${this.baseUrl}/admin/plugins/${name}/restart`, {});
+  }
+
   updatePluginConfig(config: PluginConfig): Observable<PluginState> {
     return this.http.post<PluginState>(`${this.baseUrl}/admin/plugins/${config.name}/config`, config);
   }

@@ -40,6 +40,15 @@ Each plug-in directory should include:
 - `start.sh` – executable wrapper invoked by the host to start the plug-in.
 - Runtime assets (Cargo project, Python package, or Node project).
 
+## Control Centre Navigation
+
+The Angular admin UI exposes a unified control centre under `apps/bkg-web/src/app/features/plugins/`. The structure maps one-to-one to the plug-in catalog and enables quick access to individual dashboards:
+
+- `plugin-list/` renders `/plugins` with the complete inventory, lifecycle buttons, and capability badges.
+- `plugin-dashboard/` powers `/plugins/:name`, combining log streaming, configuration editing, and curated feature descriptions for every plug-in (brainml, candle, rustyface, llmserver, repoagent, apikeys).
+
+Every dashboard surfaces the capabilities advertised over the plug-in bus and wires the lifecycle controls (`start`, `stop`, `restart`) back to the NestJS host. Feature cards summarise the operational responsibilities (e.g. BrainML hybrid search, Candle inference) so operators immediately understand the levers available. Log streaming and configuration editors share the same layout across all plug-ins, which keeps hot-swapping predictable when new services join the platform.
+
 ## Plug-in Reference Implementations
 
 ### llmserver (Rust)

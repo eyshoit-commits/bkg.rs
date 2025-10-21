@@ -1,4 +1,10 @@
 fn main() {
     let doc = brainml::api::openapi::BrainmlApiDoc::openapi();
-    println!("{}", doc.to_json().unwrap());
+    match doc.to_json() {
+        Ok(json) => println!("{}", json),
+        Err(err) => {
+            eprintln!("failed to render OpenAPI spec: {err}");
+            std::process::exit(1);
+        }
+    }
 }

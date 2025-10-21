@@ -6,6 +6,7 @@ use tokio::sync::RwLock;
 use tracing::{instrument, warn};
 use uuid::Uuid;
 
+use crate::core::bus::OutboundCommand;
 use crate::core::schema::{DocumentRecord, QueryFilter, QueryResult, QueryStrategy};
 
 #[derive(Debug, Error)]
@@ -157,7 +158,7 @@ impl BraindbClient for NullBraindbClient {
 
 #[derive(Clone)]
 pub struct PluginBusBraindbClient {
-    pub(crate) sender: tokio::sync::mpsc::Sender<crate::core::bus::OutboundCommand>,
+    pub(crate) sender: tokio::sync::mpsc::Sender<OutboundCommand>,
 }
 
 #[async_trait]
@@ -194,6 +195,10 @@ impl BraindbClient for PluginBusBraindbClient {
 }
 
 impl PluginBusBraindbClient {
+    pub fn new(sender: tokio::sync::mpsc::Sender<OutboundCommand>) -> Self {
+        Self { sender }
+    }
+
     async fn invoke(
         &self,
         capability: &str,
@@ -201,7 +206,7 @@ impl PluginBusBraindbClient {
     ) -> BraindbResult<serde_json::Value> {
         let request_id = Uuid::new_v4();
         let (resp_tx, resp_rx) = tokio::sync::oneshot::channel();
-        let cmd = crate::core::bus::OutboundCommand::Invoke {
+        let cmd = OutboundCommand::Invoke {
             request_id,
             capability: capability.to_string(),
             payload,

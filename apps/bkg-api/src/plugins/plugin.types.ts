@@ -7,7 +7,12 @@ export type PluginCapability =
   | 'auth.createKey'
   | 'auth.revokeKey'
   | 'auth.listKeys'
-  | 'auth.validate';
+  | 'auth.validate'
+  | 'brainml.index'
+  | 'brainml.query'
+  | 'brainml.train'
+  | 'brainml.stats'
+  | 'brainml.admin';
 
 export interface PluginConfig {
   name: string;
