@@ -7,7 +7,7 @@ ARG PROMPT_TEMPLATE=assistant
 ###############################
 # Build llmserver plug-in
 ###############################
-FROM rust:1.74 as llmserver-builder
+FROM rust:1.82 as llmserver-builder
 WORKDIR /build/llmserver
 COPY core/plugins/llmserver/Cargo.toml ./Cargo.toml
 RUN mkdir src && echo "fn main() {}" > src/main.rs
