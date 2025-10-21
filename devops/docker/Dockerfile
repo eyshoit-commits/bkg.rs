@@ -77,14 +77,18 @@ RUN apt-get update && \
       python3-dev && \
     rm -rf /var/lib/apt/lists/*
 
+# Copy application artefacts (before user switch)
+COPY --from=api-builder /build/api/dist /srv/bkg/core/backend/gateway/dist
+COPY --from=api-builder /build/api/node_modules /srv/bkg/core/backend/gateway/node_modules
+
+# Rebuild better-sqlite3 with current GLIBC
+RUN cd /srv/bkg/core/backend/gateway/node_modules/better-sqlite3 && npm run install
+
 # Non-root user
 RUN useradd -m -u 1000 bkg
+RUN chown -R bkg:bkg /srv/bkg
 USER bkg
 WORKDIR /srv/bkg
-
-# Copy application artefacts
-COPY --chown=bkg:bkg --from=api-builder /build/api/dist ./core/backend/gateway/dist
-COPY --chown=bkg:bkg --from=api-builder /build/api/node_modules ./core/backend/gateway/node_modules
 COPY --chown=bkg:bkg core/backend/gateway/package.json core/backend/gateway/tsconfig*.json ./core/backend/gateway/
 
 COPY --chown=bkg:bkg --from=web-builder /build/web/dist/bkg-web ./core/frontend/admin-ui/dist
