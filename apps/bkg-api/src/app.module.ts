@@ -7,6 +7,7 @@ import { PluginModule } from './plugins/plugin.module';
 import { ChatController } from './chat/chat.controller';
 import { AuthController } from './auth/auth.controller';
 import { AdminController } from './admin/admin.controller';
+import { PluginsController } from './plugins/plugins.controller';
 import { HealthController } from './health/health.controller';
 import { DatabaseModule } from './storage/database.module';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
@@ -22,7 +23,7 @@ import { ApiKeyGuard } from './common/guards/api-key.guard';
     DatabaseModule,
     PluginModule,
   ],
-  controllers: [ChatController, AuthController, AdminController, HealthController],
+  controllers: [ChatController, AuthController, AdminController, HealthController, PluginsController],
   providers: [AppService, ApiKeyGuard],
 })
 export class AppModule {}

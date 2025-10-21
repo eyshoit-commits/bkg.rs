@@ -29,6 +29,22 @@
         Refresh
       </button>
     </div>
+    <div *ngIf="telemetry" class="flex flex-wrap items-center gap-2">
+      <span class="rounded bg-slate-900/70 px-3 py-1 text-xs text-slate-200">CPU: {{ telemetry?.cpu | number: '1.0-1' }}%</span>
+      <span class="rounded bg-slate-900/70 px-3 py-1 text-xs text-slate-200">
+        RAM: {{ telemetry?.memBytes / (1024 * 1024) | number: '1.0-1' }} MiB
+      </span>
+      <span *ngIf="telemetry?.modelsLoaded !== undefined" class="rounded bg-slate-900/70 px-3 py-1 text-xs text-slate-200">
+        Modelle: {{ telemetry?.modelsLoaded }}
+      </span>
+      <span *ngIf="telemetry?.datasets !== undefined" class="rounded bg-slate-900/70 px-3 py-1 text-xs text-slate-200">
+        Datensätze: {{ telemetry?.datasets }}
+      </span>
+      <span *ngIf="telemetry?.entries !== undefined" class="rounded bg-slate-900/70 px-3 py-1 text-xs text-slate-200">
+        Einträge: {{ telemetry?.entries }}
+      </span>
+      <span class="rounded bg-slate-900/70 px-3 py-1 text-xs text-slate-500">Aktualisiert: {{ telemetry?.timestamp | date: 'mediumTime' }}</span>
+    </div>
   </header>
 
   <p *ngIf="error" class="rounded border border-rose-700/60 bg-rose-900/40 px-4 py-3 text-sm text-rose-200">{{ error }}</p>

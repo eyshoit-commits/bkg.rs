@@ -1,0 +1,5 @@
+{
+  "models_path": "./models",
+  "default_model": null,
+  "telemetry_interval": 10
+}

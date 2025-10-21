@@ -11,6 +11,8 @@ import {
   PluginRequestMessage,
   PluginResponseMessage,
   PluginRuntimeState,
+  PluginTelemetryMessage,
+  PluginTelemetrySnapshot,
 } from './plugin.types';
 
 interface PendingRequest {
@@ -30,6 +32,8 @@ export class PluginBusService
   private readonly connections = new Map<string, WebSocket>();
   private readonly states = new Map<string, PluginRuntimeState>();
   private readonly pending = new Map<string, PendingRequest>();
+  private readonly logs = new Map<string, PluginLogMessage[]>();
+  private readonly telemetry = new Map<string, PluginTelemetrySnapshot>();
 
   get port(): number {
     if (!this.httpServer) {
@@ -48,6 +52,19 @@ export class PluginBusService
 
   getPlugin(name: string): PluginRuntimeState | undefined {
     return this.states.get(name);
+  }
+
+  getLogs(plugin: string, limit: number): PluginLogMessage[] {
+    const buffer = this.logs.get(plugin) ?? [];
+    return buffer.slice(Math.max(0, buffer.length - limit));
+  }
+
+  getTelemetrySnapshot(plugin: string): PluginTelemetrySnapshot | undefined {
+    return this.telemetry.get(plugin);
+  }
+
+  getAllTelemetry(): PluginTelemetrySnapshot[] {
+    return Array.from(this.telemetry.values());
   }
 
   async request<T = unknown>(
@@ -212,6 +229,7 @@ export class PluginBusService
       const message = JSON.parse(payload.toString()) as PluginBusMessage;
       if (message.type === 'log') {
         const logMessage = message as PluginLogMessage;
+        this.storeLog(plugin, logMessage);
         this.emit('log', logMessage);
         return;
       }
@@ -222,6 +240,21 @@ export class PluginBusService
           status: message.status === 'up' ? 'running' : 'degraded',
         }));
         this.emit('health', message);
+        return;
+      }
+      if (message.type === 'telemetry') {
+        const telemetry = message as PluginTelemetryMessage;
+        const snapshot: PluginTelemetrySnapshot = {
+          plugin,
+          cpu: telemetry.cpu,
+          memBytes: telemetry.mem_bytes,
+          modelsLoaded: telemetry.models_loaded,
+          datasets: telemetry.datasets,
+          entries: telemetry.entries,
+          timestamp: new Date(),
+        };
+        this.telemetry.set(plugin, snapshot);
+        this.emit('telemetry', snapshot);
         return;
       }
       if (message.type === 'response') {
@@ -240,6 +273,18 @@ export class PluginBusService
       }
     } catch (error) {
       this.logger.error(`Failed to process message from ${plugin}`, error as Error);
+    }
+  }
+
+  private storeLog(plugin: string, log: PluginLogMessage) {
+    const buffer = this.logs.get(plugin);
+    if (!buffer) {
+      this.logs.set(plugin, [log]);
+      return;
+    }
+    buffer.push(log);
+    if (buffer.length > 500) {
+      buffer.splice(0, buffer.length - 500);
     }
   }
 }

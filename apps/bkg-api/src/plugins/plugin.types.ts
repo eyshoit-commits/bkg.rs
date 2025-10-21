@@ -12,7 +12,13 @@ export type PluginCapability =
   | 'brainml.query'
   | 'brainml.train'
   | 'brainml.stats'
-  | 'brainml.admin';
+  | 'brainml.admin'
+  | 'candle.model.load'
+  | 'candle.model.run'
+  | 'candle.stats'
+  | 'faces.encode'
+  | 'faces.search'
+  | 'dataset.manage';
 
 export interface PluginConfig {
   name: string;
@@ -45,6 +51,26 @@ export interface PluginLogMessage {
   timestamp?: string;
 }
 
+export interface PluginTelemetryMessage {
+  type: 'telemetry';
+  plugin: string;
+  cpu: number;
+  mem_bytes: number;
+  models_loaded?: number;
+  datasets?: number;
+  entries?: number;
+}
+
+export interface PluginTelemetrySnapshot {
+  plugin: string;
+  cpu: number;
+  memBytes: number;
+  modelsLoaded?: number;
+  datasets?: number;
+  entries?: number;
+  timestamp: Date;
+}
+
 export interface PluginHealthMessage {
   type: 'health';
   plugin: string;
@@ -72,6 +98,7 @@ export type PluginBusMessage =
   | PluginRegistrationMessage
   | PluginLogMessage
   | PluginHealthMessage
+  | PluginTelemetryMessage
   | PluginRequestMessage
   | PluginResponseMessage;
 

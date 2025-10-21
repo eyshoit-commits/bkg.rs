@@ -4,7 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../services/api.service';
-import { PluginLogEvent, PluginState } from '../../../models/api.models';
+import { PluginLogEvent, PluginState, PluginTelemetry } from '../../../models/api.models';
+import { PluginWsService } from '../../../services/plugin-ws.service';
 
 interface PluginFeatureDescription {
   title: string;
@@ -25,9 +26,13 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
   configEditor = '';
   loading = false;
   error: string | null = null;
+  telemetry?: PluginTelemetry;
 
   private logSubscription?: Subscription;
   private routeSubscription?: Subscription;
+  private statusSubscription?: Subscription;
+  private telemetrySubscription?: Subscription;
+  private bootstrapSubscription?: Subscription;
 
   private readonly featureCatalog: Record<string, PluginFeatureDescription[]> = {
     brainml: [
@@ -66,10 +71,27 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly api: ApiService
+    private readonly api: ApiService,
+    private readonly ws: PluginWsService,
   ) {}
 
   ngOnInit(): void {
+    this.bootstrapSubscription = this.ws.bootstrap().subscribe(({ plugins, telemetry }) => {
+      this.plugins = plugins;
+      if (this.plugin) {
+        const updated = plugins.find((item) => item.name === this.plugin?.name);
+        if (updated) {
+          this.plugin = updated;
+          this.configEditor = JSON.stringify(updated.config, null, 2);
+        }
+      }
+      if (Array.isArray(telemetry)) {
+        const latest = telemetry.find((snapshot) => snapshot.plugin === this.plugin?.name);
+        if (latest) {
+          this.telemetry = latest;
+        }
+      }
+    });
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const pluginId = params.get('pluginId');
       if (!pluginId) {
@@ -83,6 +105,9 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.logSubscription?.unsubscribe();
     this.routeSubscription?.unsubscribe();
+    this.statusSubscription?.unsubscribe();
+    this.telemetrySubscription?.unsubscribe();
+    this.bootstrapSubscription?.unsubscribe();
   }
 
   get features(): PluginFeatureDescription[] {
@@ -160,24 +185,34 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     this.logSubscription?.unsubscribe();
+    this.statusSubscription?.unsubscribe();
+    this.telemetrySubscription?.unsubscribe();
     this.logs = [];
+    this.telemetry = undefined;
     try {
       this.plugins = await firstValueFrom(this.api.listPlugins());
       const plugin = this.plugins.find((item) => item.name === pluginId);
       if (!plugin) {
-        this.error = `Plug-in \\"${pluginId}\\" wurde nicht gefunden.`;
+        this.error = `Plug-in "${pluginId}" wurde nicht gefunden.`;
         this.plugin = undefined;
         return;
       }
       this.plugin = plugin;
       this.configEditor = JSON.stringify(plugin.config, null, 2);
-      this.logSubscription = this.api.streamPluginLogs(plugin.name).subscribe({
+      this.statusSubscription = this.ws.watchStatus(plugin.name).subscribe((state) => {
+        this.plugin = state;
+        this.configEditor = JSON.stringify(state.config, null, 2);
+      });
+      this.telemetrySubscription = this.ws.watchTelemetry(plugin.name).subscribe((snapshot) => {
+        this.telemetry = snapshot;
+      });
+      this.logSubscription = this.ws.watchLogs(plugin.name).subscribe({
         next: (event) => {
           this.logs = [...this.logs.slice(-199), event];
         },
         error: (err) => {
           this.error = err.message;
-        }
+        },
       });
     } catch (error) {
       this.error = (error as Error).message;

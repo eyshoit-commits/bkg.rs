@@ -62,5 +62,39 @@
       "path": "/health/ready",
       "intervalSeconds": 20
     }
+  },
+  {
+    "name": "candle",
+    "description": "Candle-based tensor runtime and model execution",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": false,
+    "capabilities": [
+      "candle.model.load",
+      "candle.model.run",
+      "candle.stats"
+    ],
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 15
+    }
+  },
+  {
+    "name": "rustyface",
+    "description": "Face embedding and dataset management runtime",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": false,
+    "capabilities": [
+      "faces.encode",
+      "faces.search",
+      "dataset.manage"
+    ],
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 15
+    }
   }
 ]

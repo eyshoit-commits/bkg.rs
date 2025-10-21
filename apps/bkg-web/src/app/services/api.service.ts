@@ -7,7 +7,6 @@ import {
   ChatMessage,
   EmbeddingResponse,
   PluginConfig,
-  PluginLogEvent,
   PluginState,
 } from '../models/api.models';
 
@@ -33,23 +32,23 @@ export class ApiService {
   }
 
   listPlugins(): Observable<PluginState[]> {
-    return this.http.get<PluginState[]>(`${this.baseUrl}/admin/plugins`);
+    return this.http.get<PluginState[]>(`${this.baseUrl}/api/plugins`);
   }
 
   startPlugin(name: string): Observable<PluginState> {
-    return this.http.post<PluginState>(`${this.baseUrl}/admin/plugins/${name}/start`, {});
+    return this.http.post<PluginState>(`${this.baseUrl}/api/plugins/${name}/start`, {});
   }
 
   stopPlugin(name: string): Observable<{ status: string }> {
-    return this.http.post<{ status: string }>(`${this.baseUrl}/admin/plugins/${name}/stop`, {});
+    return this.http.post<{ status: string }>(`${this.baseUrl}/api/plugins/${name}/stop`, {});
   }
 
   restartPlugin(name: string): Observable<PluginState> {
-    return this.http.post<PluginState>(`${this.baseUrl}/admin/plugins/${name}/restart`, {});
+    return this.http.post<PluginState>(`${this.baseUrl}/api/plugins/${name}/restart`, {});
   }
 
   updatePluginConfig(config: PluginConfig): Observable<PluginState> {
-    return this.http.post<PluginState>(`${this.baseUrl}/admin/plugins/${config.name}/config`, config);
+    return this.http.post<PluginState>(`${this.baseUrl}/api/plugins/${config.name}/config`, config);
   }
 
   portTable(): Observable<{ service: string; port: string | number; status: string }[]> {
@@ -73,22 +72,7 @@ export class ApiService {
     return this.http.request<{ revoked: string }>('delete', `${this.baseUrl}/admin/keys/${encodeURIComponent(id)}`);
   }
 
-  streamPluginLogs(plugin: string): Observable<PluginLogEvent> {
-    const url = `${this.baseUrl}/admin/plugins/${plugin}/logs`;
-    return new Observable<PluginLogEvent>((observer) => {
-      const source = new EventSource(url);
-      source.onmessage = (event) => {
-        this.zone.run(() => {
-          observer.next(JSON.parse(event.data));
-        });
-      };
-      source.onerror = () => {
-        this.zone.run(() => {
-          observer.error(new Error('Log stream disconnected'));
-          source.close();
-        });
-      };
-      return () => source.close();
-    });
+  streamPluginLogs(): never {
+    throw new Error('Use PluginWsService for log streaming');
   }
 }
