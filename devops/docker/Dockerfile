@@ -75,7 +75,8 @@ RUN apt-get update && \
       dumb-init \
       build-essential \
       python3-dev && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    npm install -g http-server
 
 # Copy application artefacts (before user switch)
 COPY --from=api-builder /build/api/dist /srv/bkg/core/backend/gateway/dist
