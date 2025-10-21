@@ -75,6 +75,67 @@
     }
   },
   {
+    "name": "goose",
+    "description": "Goose-based load testing runtime",
+    "entrypoint": "start.sh",
+    "args": [],
+    "env": {},
+    "autostart": false,
+    "capabilities": [
+      "goose.run",
+      "goose.status",
+      "goose.stop",
+      "goose.history"
+    ],
+    "settings": {
+      "defaultTarget": "https://example.com",
+      "users": 25,
+      "hatchRate": 5,
+      "runTimeSeconds": 60,
+      "timeoutSeconds": 30,
+      "startupTimeSeconds": 5,
+      "gracefulStopSeconds": 10,
+      "throttleRps": 0,
+      "globalHeaders": {
+        "User-Agent": "bkg-goose/0.1"
+      },
+      "verifyTls": true,
+      "stickyCookies": true,
+      "followRedirects": true,
+      "maxHistory": 20,
+      "schedule": [
+        {
+          "name": "Homepage",
+          "method": "GET",
+          "path": "/",
+          "weight": 5,
+          "thinkTimeMs": 250
+        },
+        {
+          "name": "Assets",
+          "method": "GET",
+          "path": "/assets/app.js",
+          "weight": 2,
+          "thinkTimeMs": 150
+        },
+        {
+          "name": "Search",
+          "method": "GET",
+          "path": "/search",
+          "query": {
+            "q": "bkg"
+          },
+          "weight": 1,
+          "thinkTimeMs": 500
+        }
+      ]
+    },
+    "healthcheck": {
+      "path": "/health",
+      "intervalSeconds": 20
+    }
+  },
+  {
     "name": "apikeys",
     "description": "Authentication and API key management",
     "entrypoint": "start.sh",
