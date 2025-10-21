@@ -84,6 +84,9 @@ COPY --from=api-builder /build/api/node_modules /srv/bkg/core/backend/gateway/no
 # Rebuild better-sqlite3 with current GLIBC
 RUN cd /srv/bkg/core/backend/gateway/node_modules/better-sqlite3 && npm run install
 
+# Create data directory and set permissions
+RUN mkdir -p /data && chown -R bkg:bkg /data
+
 # Non-root user
 RUN useradd -m -u 1000 bkg
 RUN chown -R bkg:bkg /srv/bkg
