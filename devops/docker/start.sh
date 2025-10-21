@@ -8,4 +8,4 @@ fi
 if [ -n "${EMBEDDING_MODEL_FILE:-}" ] && [ ! -f "/srv/models/${EMBEDDING_MODEL_FILE}" ]; then
   echo "[start] warning: embedding model ${EMBEDDING_MODEL_FILE} missing under /srv/models" >&2
 fi
-exec /usr/bin/supervisord -c /srv/bkg/docker/supervisord.conf
+exec /usr/bin/supervisord -c /srv/bkg/devops/docker/supervisord.conf

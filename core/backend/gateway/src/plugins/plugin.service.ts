@@ -22,7 +22,8 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PluginService.name);
   private readonly processes = new Map<string, PluginProcess>();
   private readonly configs = new Map<string, PluginConfig>();
-  private readonly configPath = join(process.cwd(), 'plugins', 'plugins.json');
+  private readonly configRoot = join(process.cwd(), 'core', 'plugins');
+  private readonly configPath = join(this.configRoot, 'plugins.json');
 
   constructor(
     private readonly bus: PluginBusService,
@@ -121,7 +122,7 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
     if (!config) {
       throw new Error(`No configuration for plugin ${name}`);
     }
-    const entry = join(process.cwd(), 'plugins', name, config.entrypoint);
+    const entry = join(this.configRoot, name, config.entrypoint);
     if (!existsSync(entry)) {
       throw new Error(`Entrypoint ${entry} does not exist`);
     }
@@ -135,7 +136,7 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
     this.bus.ensureState(name, config);
     this.bus.setConfig(name, config);
     const child = spawn(entry, config.args ?? [], {
-      cwd: join(process.cwd(), 'plugins', name),
+      cwd: join(this.configRoot, name),
       env,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -225,7 +226,7 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
   }
 
   private ensureConfigStorage() {
-    const dir = join(process.cwd(), 'plugins');
+    const dir = this.configRoot;
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }

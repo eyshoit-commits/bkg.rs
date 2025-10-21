@@ -2,9 +2,9 @@
 
 ## Completed Work
 - Implemented Candle and RustyFace plugin runtimes with telemetry and log streaming via the plugin bus.
-- Extended backend `apps/bkg-api` to expose `/api/plugins` lifecycle endpoints, provide log history and telemetry storage, and serve the `/ws/plugins` WebSocket gateway.
-- Updated frontend `apps/bkg-web` to consume the new WebSocket service and display live telemetry/logs on the plugin dashboards.
-- Added documentation update (`docs/update/v0.2-phase1.md`) and plugin configuration entries (`plugins/plugins.json`).
+- Extended backend `core/backend/gateway` to expose `/api/plugins` lifecycle endpoints, provide log history and telemetry storage, and serve the `/ws/plugins` WebSocket gateway.
+- Updated frontend `core/frontend/admin-ui` to consume the new WebSocket service and display live telemetry/logs on the plugin dashboards.
+- Added documentation update (`docs/update/v0.2-phase1.md`) and plugin configuration entries (`core/plugins/plugins.json`).
 
 ## Remaining Tasks
 - Implement the model management REST API (`/api/models`) and connect the Admin UI workflows.
@@ -21,7 +21,7 @@
 
 ## Operational Notes
 - Set `BKG_PLUGIN_BUS_PORT` (autodetects if unset) when launching plugins.
-- Candle plugin expects JSON linear model manifests (see `plugins/candle/models/sample-linear.json`).
+- Candle plugin expects JSON linear model manifests (see `core/plugins/candle/models/sample-linear.json`).
 - RustyFace assumes 32×32 grayscale inputs for embeddings; adjust preprocessing if datasets differ.
 - Angular WebSocket base URL derives from the `<meta name="bkg-api">` tag, which must be present in deployments.
-- Keep `plugins/plugins.json` aligned with database records to avoid configuration mismatches.
+- Keep `core/plugins/plugins.json` aligned with database records to avoid configuration mismatches.

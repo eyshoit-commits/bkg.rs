@@ -11,7 +11,7 @@
 ### Modelle herunterladen
 
 ```bash
-./download-models.sh
+./devops/scripts/download-models.sh
 ```
 
 Dies lädt herunter:
@@ -21,13 +21,13 @@ Dies lädt herunter:
 ### Starten mit Docker Compose
 
 ```bash
-./docker-start.sh
+./devops/scripts/docker-start.sh
 ```
 
 Oder manuell:
 
 ```bash
-docker-compose up --build
+docker compose -f devops/docker/docker-compose.yml up --build
 ```
 
 ### Zugriff
@@ -38,7 +38,7 @@ docker-compose up --build
 
 ## 📋 Docker Compose Konfiguration
 
-Die `docker-compose.yml` definiert:
+Die `devops/docker/docker-compose.yml` definiert:
 
 | Service | Port | Beschreibung |
 |---------|------|-------------|
@@ -64,31 +64,32 @@ NODE_ENV=production
 ## 🛑 Stoppen
 
 ```bash
-docker-compose down
+docker compose -f devops/docker/docker-compose.yml down
 ```
 
 Mit Volume-Löschung:
 
 ```bash
-docker-compose down -v
+docker compose -f devops/docker/docker-compose.yml down -v
 ```
 
 ## 📊 Logs anschauen
 
 ```bash
-docker-compose logs -f bkg
+docker compose -f devops/docker/docker-compose.yml logs -f bkg
 ```
 
 ## 🔧 Neu bauen
 
 ```bash
-docker-compose build --no-cache
+docker compose -f devops/docker/docker-compose.yml build --no-cache
 ```
 
 ## 🐳 Manueller Docker Build
 
 ```bash
 docker buildx build . \
+  -f devops/docker/Dockerfile \
   --platform linux/amd64,linux/arm64 \
   -t bkg:latest \
   --build-arg CHAT_MODEL_FILE=Qwen2-0.5B-Instruct-Q5_K_M.gguf \
@@ -124,7 +125,7 @@ Für Production:
    export ADMIN_PASSWORD="your-secure-password"
    ```
 
-2. **Ports anpassen** (in docker-compose.yml):
+2. **Ports anpassen** (in devops/docker/docker-compose.yml):
    ```yaml
    ports:
      - "80:43117"      # Frontend
@@ -133,12 +134,12 @@ Für Production:
 
 3. **Volumes persistent machen**:
    ```bash
-   docker-compose up -d
+   docker compose -f devops/docker/docker-compose.yml up -d
    ```
 
 4. **Monitoring einrichten**:
    ```bash
-   docker-compose logs -f
+   docker compose -f devops/docker/docker-compose.yml logs -f
    ```
 
 ## 🐛 Troubleshooting
@@ -150,7 +151,7 @@ Für Production:
 docker ps | grep bkg
 
 # Stoppe ihn
-docker-compose down
+docker compose -f devops/docker/docker-compose.yml down
 ```
 
 ### Modelle nicht gefunden
@@ -167,10 +168,10 @@ ls -lh models/
 
 ```bash
 # Neu bauen ohne Cache
-docker-compose build --no-cache
+docker compose -f devops/docker/docker-compose.yml build --no-cache
 
 # Mit Verbose-Output
-docker-compose build --verbose
+docker compose -f devops/docker/docker-compose.yml build --verbose
 ```
 
 ## 📚 Weitere Infos

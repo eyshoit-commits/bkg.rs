@@ -10,7 +10,8 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}=== bkg.rs Modell-Download ===${NC}\n"
 
-MODELS_DIR="/home/wind/devel/bkg.rs/models"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
+MODELS_DIR="$REPO_ROOT/models"
 mkdir -p "$MODELS_DIR"
 
 # Chat-Modell: Qwen2-0.5B (ca. 350MB)
@@ -68,7 +69,4 @@ echo -e "${GREEN}=== Download abgeschlossen ===${NC}"
 echo ""
 echo -e "${BLUE}Nächste Schritte:${NC}"
 echo "  1. Starten mit Docker Compose:"
-echo "     ./docker-start.sh"
-echo ""
-echo "  2. Oder lokal starten:"
-echo "     ./dev-start.sh"
+echo "     devops/scripts/docker-start.sh"

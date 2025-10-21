@@ -36,7 +36,7 @@ Environment overrides:
 ## Building and Running
 
 ```bash
-cd plugins/brainml
+cd core/plugins/brainml
 ./start.sh
 ```
 

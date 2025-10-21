@@ -17,11 +17,11 @@
 - ⚠️ Persistenz-/Snapshot-Validierung ausstehend
 
 ### Aktive Module
-- `apps/bkg-api` (NestJS Plug-in-Host)
-- `plugins/llmserver` (Rust LLM)
-- `plugins/repoagent` (Python Code-Analyse)
-- `plugins/apikeys` (Node.js Auth)
-- `plugins/brainml` (Rust Index/Query/Train)
+- `core/backend/gateway` (NestJS Plug-in-Host)
+- `core/core/plugins/llmserver` (Rust LLM)
+- `core/core/plugins/repoagent` (Python Code-Analyse)
+- `core/core/plugins/apikeys` (Node.js Auth)
+- `core/core/plugins/brainml` (Rust Index/Query/Train)
 
 ### Fehler & Blocker
 - `cargo clippy` & `cargo test` scheitern an 403-Proxy-Fehlern
@@ -100,7 +100,7 @@ pub trait Plugin: Send + Sync {
 ### Frontend-Layer (Angular 17)
 
 ```
-apps/admin-ui/src/app/
+core/frontend/admin-ui/src/app/
 ├── plugins/
 │   ├── brainml/
 │   ├── candle/
@@ -133,15 +133,15 @@ apps/admin-ui/src/app/
 ### Backend-APIs
 
 ```
-GET    /api/plugins                    # Alle Plug-ins + Status
-GET    /api/plugins/:id                # Plug-in-Details
-POST   /api/plugins/:id/start          # Plug-in starten
-POST   /api/plugins/:id/stop           # Plug-in stoppen
-POST   /api/plugins/:id/restart        # Plug-in neu starten
-GET    /api/plugins/:id/logs           # Plug-in-Logs (WebSocket)
-GET    /api/plugins/:id/telemetry      # CPU/RAM/Throughput
-POST   /api/plugins/:id/config         # Konfiguration aktualisieren
-POST   /api/plugins/:id/models/download # Modell herunterladen
+GET    /api/core/plugins                    # Alle Plug-ins + Status
+GET    /api/core/plugins/:id                # Plug-in-Details
+POST   /api/core/plugins/:id/start          # Plug-in starten
+POST   /api/core/plugins/:id/stop           # Plug-in stoppen
+POST   /api/core/plugins/:id/restart        # Plug-in neu starten
+GET    /api/core/plugins/:id/logs           # Plug-in-Logs (WebSocket)
+GET    /api/core/plugins/:id/telemetry      # CPU/RAM/Throughput
+POST   /api/core/plugins/:id/config         # Konfiguration aktualisieren
+POST   /api/core/plugins/:id/models/download # Modell herunterladen
 ```
 
 ### Frontend-State-Management
@@ -168,8 +168,8 @@ export const pluginStore = signalStore(
 
 ```typescript
 // Real-time Logs & Telemetry
-ws://localhost:43121/ws/plugins/:id/logs
-ws://localhost:43121/ws/plugins/:id/telemetry
+ws://localhost:43121/ws/core/plugins/:id/logs
+ws://localhost:43121/ws/core/plugins/:id/telemetry
 ```
 
 ---
@@ -228,12 +228,12 @@ ws://localhost:43121/ws/plugins/:id/telemetry
     ],
     "existing_plugins": ["brainml", "llmserver", "repoagent", "apikeys"],
     "apis": [
-      "GET /api/plugins",
-      "POST /api/plugins/:id/start|stop|restart",
-      "GET /api/plugins/:id/logs",
-      "GET /api/plugins/:id/telemetry",
-      "POST /api/plugins/:id/config",
-      "POST /api/plugins/:id/models/download"
+      "GET /api/core/plugins",
+      "POST /api/core/plugins/:id/start|stop|restart",
+      "GET /api/core/plugins/:id/logs",
+      "GET /api/core/plugins/:id/telemetry",
+      "POST /api/core/plugins/:id/config",
+      "POST /api/core/plugins/:id/models/download"
     ]
   },
   
@@ -398,31 +398,31 @@ ws://localhost:43121/ws/plugins/:id/telemetry
 │   │       └── plugin.rs
 │   └── tests/
 │
-├── plugins/                       # Plug-in-Verzeichnis
-│   ├── brainml/
-│   ├── candle/                    # NEU
-│   ├── rustyface/                 # NEU
-│   ├── llmserver/
-│   ├── repoagent/
-│   └── apikeys/
+├── core/
+│   ├── backend/
+│   │   └── gateway/               # NestJS Backend & Plug-in-Host
+│   ├── frontend/
+│   │   └── admin-ui/              # Angular Admin Dashboard
+│   ├── plugins/
+│   │   ├── apikeys/
+│   │   ├── brainml/
+│   │   ├── candle/
+│   │   ├── llmserver/
+│   │   ├── repoagent/
+│   │   └── rustyface/
+│   ├── database/
+│   └── config/
 │
-├── apps/
-│   ├── bkg-api/                   # NestJS Backend
-│   ├── bkg-web/                   # Angular Frontend (bestehend)
-│   └── admin-ui/                  # NEU: Admin-Dashboard
-│       ├── angular.json
-│       ├── src/
-│       │   ├── app/
-│       │   │   ├── plugins/
-│       │   │   ├── shared/
-│       │   │   │   ├── components/
-│       │   │   │   ├── services/
-│       │   │   │   └── models/
-│       │   │   └── admin/
-│       │   └── main.ts
-│       └── package.json
+├── devops/
+│   ├── docker/
+│   │   ├── Dockerfile
+│   │   └── docker-compose.yml
+│   ├── scripts/
+│   │   ├── docker-start.sh
+│   │   └── download-models.sh
+│   └── .devcontainer/             # VS Code Container Setup
+│       └── devcontainer.json
 │
-├── docker/
 ├── docs/
 │   ├── next.md                    # Diese Datei
 │   ├── update/
@@ -430,7 +430,7 @@ ws://localhost:43121/ws/plugins/:id/telemetry
 │   └── architecture/
 │       └── plugin_system.md
 │
-├── docker-compose.yml
+├── models/
 └── README.md
 ```
 
@@ -457,21 +457,21 @@ npm config set registry https://registry.npmjs.org/
 ### 2. Core-Struktur aufbauen
 ```bash
 cd /home/wind/devel/bkg.rs
-cargo new --lib core
+# Core-Struktur bereits erstellt
 cd core
 # Cargo.toml: plugin_bus, plugin_registry, plugin_traits
 ```
 
 ### 3. Candle-Plug-in initialisieren
 ```bash
-cd /home/wind/devel/bkg.rs/plugins
+cd /home/wind/devel/bkg.rs/core/plugins
 cargo new candle
 # Cargo.toml: candle, tch-rs, huggingface-hub
 ```
 
 ### 4. Admin-UI scaffolden
 ```bash
-cd /home/wind/devel/bkg.rs/apps
+cd /home/wind/devel/bkg.rs/core/frontend
 ng new admin-ui --standalone --routing --style=css
 cd admin-ui
 ng add @ngrx/signals

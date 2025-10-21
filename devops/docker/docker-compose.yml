@@ -4,7 +4,7 @@ services:
   bkg:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: devops/docker/Dockerfile
       args:
         CHAT_MODEL_FILE: Qwen2-0.5B-Instruct-Q5_K_M.gguf
         EMBEDDING_MODEL_FILE: all-MiniLM-L6-v2-ggml-model-f16.gguf

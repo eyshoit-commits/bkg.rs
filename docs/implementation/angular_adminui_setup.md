@@ -9,7 +9,7 @@
 ## 1. Ordnerstruktur
 
 ```
-apps/admin-ui/
+core/frontend/admin-ui/
 ├── src/
 │   ├── app/
 │   │   ├── app.component.ts              # Root Component mit Sidebar
@@ -71,7 +71,7 @@ apps/admin-ui/
 ### 2.1 app.routes.ts
 
 ```typescript
-// apps/admin-ui/src/app/app.routes.ts
+// core/frontend/admin-ui/src/app/app.routes.ts
 
 import { Routes } from '@angular/router';
 
@@ -95,7 +95,7 @@ export const routes: Routes = [
 ### 2.2 plugins.routes.ts
 
 ```typescript
-// apps/admin-ui/src/app/features/plugins/plugins.routes.ts
+// core/frontend/admin-ui/src/app/features/plugins/plugins.routes.ts
 
 import { Routes } from '@angular/router';
 import { BrainmlDashboardComponent } from './brainml/brainml-dashboard.component';
@@ -123,7 +123,7 @@ export const PLUGIN_ROUTES: Routes = [
 ### 3.1 plugin-api.service.ts
 
 ```typescript
-// apps/admin-ui/src/app/core/services/plugin-api.service.ts
+// core/frontend/admin-ui/src/app/core/services/plugin-api.service.ts
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -180,7 +180,7 @@ export class PluginApiService {
 ### 3.2 websocket.service.ts
 
 ```typescript
-// apps/admin-ui/src/app/core/services/websocket.service.ts
+// core/frontend/admin-ui/src/app/core/services/websocket.service.ts
 
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
@@ -246,7 +246,7 @@ export class WebSocketService {
 ### 4.1 plugin-header.component.ts
 
 ```typescript
-// apps/admin-ui/src/app/core/components/plugin-header.component.ts
+// core/frontend/admin-ui/src/app/core/components/plugin-header.component.ts
 
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -357,7 +357,7 @@ export class PluginHeaderComponent implements OnInit {
 ### 4.2 plugin-stats.component.ts
 
 ```typescript
-// apps/admin-ui/src/app/core/components/plugin-stats.component.ts
+// core/frontend/admin-ui/src/app/core/components/plugin-stats.component.ts
 
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -422,7 +422,7 @@ export class PluginStatsComponent implements OnInit, OnDestroy {
 ### 4.3 plugin-logs.component.ts
 
 ```typescript
-// apps/admin-ui/src/app/core/components/plugin-logs.component.ts
+// core/frontend/admin-ui/src/app/core/components/plugin-logs.component.ts
 
 import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -495,7 +495,7 @@ export class PluginLogsComponent implements OnInit, OnDestroy, AfterViewChecked 
 ### 4.4 sidebar.component.ts
 
 ```typescript
-// apps/admin-ui/src/app/core/components/sidebar.component.ts
+// core/frontend/admin-ui/src/app/core/components/sidebar.component.ts
 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -557,7 +557,7 @@ export class SidebarComponent implements OnInit {
 ### 5.1 brainml-dashboard.component.ts
 
 ```typescript
-// apps/admin-ui/src/app/features/plugins/brainml/brainml-dashboard.component.ts
+// core/frontend/admin-ui/src/app/features/core/plugins/brainml/brainml-dashboard.component.ts
 
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -588,7 +588,7 @@ export class BrainmlDashboardComponent {}
 ### 5.2 candle-dashboard.component.ts
 
 ```typescript
-// apps/admin-ui/src/app/features/plugins/candle/candle-dashboard.component.ts
+// core/frontend/admin-ui/src/app/features/core/plugins/candle/candle-dashboard.component.ts
 
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -623,7 +623,7 @@ export class CandleDashboardComponent {}
 ### 6.1 plugin.model.ts
 
 ```typescript
-// apps/admin-ui/src/app/core/models/plugin.model.ts
+// core/frontend/admin-ui/src/app/core/models/plugin.model.ts
 
 export interface PluginInfo {
   id: string;
@@ -659,7 +659,7 @@ export interface PluginTelemetry {
 ### 7.1 app.component.ts
 
 ```typescript
-// apps/admin-ui/src/app/app.component.ts
+// core/frontend/admin-ui/src/app/app.component.ts
 
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -692,7 +692,7 @@ export class AppComponent {
 ### 8.1 app.config.ts
 
 ```typescript
-// apps/admin-ui/src/app/app.config.ts
+// core/frontend/admin-ui/src/app/app.config.ts
 
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -710,7 +710,7 @@ export const appConfig: ApplicationConfig = {
 ### 8.2 main.ts
 
 ```typescript
-// apps/admin-ui/src/main.ts
+// core/frontend/admin-ui/src/main.ts
 
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';

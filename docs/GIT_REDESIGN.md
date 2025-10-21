@@ -72,10 +72,10 @@ commit: feat(plugins): add candle plugin for hugging face integration
 - Integrate with plugin_bus
 
 Files:
-  plugins/candle/Cargo.toml (new)
-  plugins/candle/src/lib.rs (new)
-  plugins/candle/src/plugin.rs (new)
-  plugins/candle/src/capabilities/
+  core/plugins/candle/Cargo.toml (new)
+  core/plugins/candle/src/lib.rs (new)
+  core/plugins/candle/src/plugin.rs (new)
+  core/plugins/candle/src/capabilities/
     ├── model_load.rs (new)
     └── inference.rs (new)
 ```
@@ -91,10 +91,10 @@ commit: feat(plugins): add rustyface plugin for face recognition
 - Integrate with plugin_bus
 
 Files:
-  plugins/rustyface/Cargo.toml (new)
-  plugins/rustyface/src/lib.rs (new)
-  plugins/rustyface/src/plugin.rs (new)
-  plugins/rustyface/src/capabilities/
+  core/plugins/rustyface/Cargo.toml (new)
+  core/plugins/rustyface/src/lib.rs (new)
+  core/plugins/rustyface/src/plugin.rs (new)
+  core/plugins/rustyface/src/capabilities/
     ├── detect.rs (new)
     └── embed.rs (new)
 ```
@@ -114,11 +114,11 @@ commit: feat(frontend): scaffold angular admin-ui with standalone components
 - Setup lazy loading for plugins
 
 Files:
-  apps/admin-ui/ (new)
-  apps/admin-ui/src/app/app.component.ts (new)
-  apps/admin-ui/src/app/app.routes.ts (new)
-  apps/admin-ui/angular.json (new)
-  apps/admin-ui/tailwind.config.js (new)
+  core/frontend/admin-ui/ (new)
+  core/frontend/admin-ui/src/app/app.component.ts (new)
+  core/frontend/admin-ui/src/app/app.routes.ts (new)
+  core/frontend/admin-ui/angular.json (new)
+  core/frontend/admin-ui/tailwind.config.js (new)
 ```
 
 #### Commit 6: Core Services & Models
@@ -132,9 +132,9 @@ commit: feat(admin-ui): add plugin api service and models
 - Setup RxJS observables for state management
 
 Files:
-  apps/admin-ui/src/app/core/services/plugin-api.service.ts (new)
-  apps/admin-ui/src/app/core/services/websocket.service.ts (new)
-  apps/admin-ui/src/app/core/models/plugin.model.ts (new)
+  core/frontend/admin-ui/src/app/core/services/plugin-api.service.ts (new)
+  core/frontend/admin-ui/src/app/core/services/websocket.service.ts (new)
+  core/frontend/admin-ui/src/app/core/models/plugin.model.ts (new)
 ```
 
 #### Commit 7: Shared Components
@@ -148,7 +148,7 @@ commit: feat(admin-ui): implement shared plugin components
 - Create SidebarComponent (Navigation)
 
 Files:
-  apps/admin-ui/src/app/core/components/
+  core/frontend/admin-ui/src/app/core/components/
     ├── plugin-header.component.ts (new)
     ├── plugin-stats.component.ts (new)
     ├── plugin-logs.component.ts (new)
@@ -169,7 +169,7 @@ commit: feat(admin-ui): add plugin-specific dashboards
 - Setup lazy loading routes
 
 Files:
-  apps/admin-ui/src/app/features/plugins/
+  core/frontend/admin-ui/src/app/features/plugins/
     ├── plugins.routes.ts (new)
     ├── brainml/brainml-dashboard.component.ts (new)
     ├── candle/candle-dashboard.component.ts (new)
@@ -190,9 +190,9 @@ commit: feat(admin-ui): add websocket support for real-time logs and telemetry
 - Add error handling and graceful degradation
 
 Files:
-  apps/admin-ui/src/app/core/services/websocket.service.ts (updated)
-  apps/admin-ui/src/app/core/components/plugin-logs.component.ts (updated)
-  apps/admin-ui/src/app/core/components/plugin-stats.component.ts (updated)
+  core/frontend/admin-ui/src/app/core/services/websocket.service.ts (updated)
+  core/frontend/admin-ui/src/app/core/components/plugin-logs.component.ts (updated)
+  core/frontend/admin-ui/src/app/core/components/plugin-stats.component.ts (updated)
 ```
 
 ---
@@ -212,9 +212,9 @@ commit: feat(api): add plugin management endpoints
 - Create /api/plugins/:id/telemetry endpoint
 
 Files:
-  apps/bkg-api/src/plugins/plugins.controller.ts (new)
-  apps/bkg-api/src/plugins/plugins.service.ts (new)
-  apps/bkg-api/src/plugins/plugins.module.ts (new)
+  core/backend/gateway/src/plugins/plugins.controller.ts (new)
+  core/backend/gateway/src/plugins/plugins.service.ts (new)
+  core/backend/gateway/src/plugins/plugins.module.ts (new)
 ```
 
 #### Commit 11: WebSocket Gateway
@@ -228,7 +228,7 @@ commit: feat(api): add websocket gateway for real-time communication
 - Setup message broadcasting
 
 Files:
-  apps/bkg-api/src/websocket/
+  core/backend/gateway/src/websocket/
     ├── plugins.gateway.ts (new)
     └── plugins.gateway.spec.ts (new)
 ```
@@ -244,7 +244,7 @@ commit: test(integration): add end-to-end tests for plugin system
 - Test concurrent operations
 
 Files:
-  apps/bkg-api/test/
+  core/backend/gateway/test/
     ├── plugins.e2e-spec.ts (new)
     └── websocket.e2e-spec.ts (new)
 ```

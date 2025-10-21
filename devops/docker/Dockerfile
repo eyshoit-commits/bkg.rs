@@ -9,10 +9,10 @@ ARG PROMPT_TEMPLATE=assistant
 ###############################
 FROM rust:latest as llmserver-builder
 WORKDIR /build/llmserver
-COPY plugins/llmserver/Cargo.toml ./Cargo.toml
+COPY core/plugins/llmserver/Cargo.toml ./Cargo.toml
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release || true
-COPY plugins/llmserver/ ./
+COPY core/plugins/llmserver/ ./
 RUN cargo build --release
 
 ###############################
@@ -20,9 +20,9 @@ RUN cargo build --release
 ###############################
 FROM node:20-bullseye as api-builder
 WORKDIR /build/api
-COPY apps/bkg-api/package.json apps/bkg-api/package-lock.json* ./
+COPY core/backend/gateway/package*.json ./
 RUN npm install --legacy-peer-deps || npm install --force
-COPY apps/bkg-api/ ./
+COPY core/backend/gateway/ ./
 RUN npm run build
 
 ###############################
@@ -30,9 +30,9 @@ RUN npm run build
 ###############################
 FROM node:20-bullseye as web-builder
 WORKDIR /build/web
-COPY apps/bkg-web/package.json apps/bkg-web/package-lock.json* ./
+COPY core/frontend/admin-ui/package*.json ./
 RUN npm install --legacy-peer-deps || npm install --force
-COPY apps/bkg-web/ ./
+COPY core/frontend/admin-ui/ ./
 RUN npm run build -- --configuration production
 
 ###############################
@@ -40,7 +40,7 @@ RUN npm run build -- --configuration production
 ###############################
 FROM python:3.11-slim as repoagent-builder
 WORKDIR /build/repoagent
-COPY plugins/repoagent/ ./
+COPY core/plugins/repoagent/ ./
 RUN python -m venv /opt/repoagent && \
     . /opt/repoagent/bin/activate && \
     pip install --upgrade pip && \
@@ -51,10 +51,10 @@ RUN python -m venv /opt/repoagent && \
 ###############################
 FROM node:20-bullseye as apikeys-builder
 WORKDIR /build/apikeys
-COPY plugins/apikeys/package.json ./
+COPY core/plugins/apikeys/package.json ./
 RUN npm install --production
-COPY plugins/apikeys/src ./src
-COPY plugins/apikeys/start.sh plugins/apikeys/config.json ./
+COPY core/plugins/apikeys/src ./src
+COPY core/plugins/apikeys/start.sh core/plugins/apikeys/config.json ./
 
 ###############################
 # Final runtime image
@@ -81,23 +81,23 @@ USER bkg
 WORKDIR /srv/bkg
 
 # Copy application artefacts
-COPY --chown=bkg:bkg --from=api-builder /build/api/dist ./apps/bkg-api/dist
-COPY --chown=bkg:bkg --from=api-builder /build/api/node_modules ./apps/bkg-api/node_modules
-COPY --chown=bkg:bkg apps/bkg-api/package.json apps/bkg-api/tsconfig*.json ./apps/bkg-api/
+COPY --chown=bkg:bkg --from=api-builder /build/api/dist ./core/backend/gateway/dist
+COPY --chown=bkg:bkg --from=api-builder /build/api/node_modules ./core/backend/gateway/node_modules
+COPY --chown=bkg:bkg core/backend/gateway/package.json core/backend/gateway/tsconfig*.json ./core/backend/gateway/
 
-COPY --chown=bkg:bkg --from=web-builder /build/web/dist/bkg-web ./apps/bkg-web/dist
-COPY --chown=bkg:bkg apps/bkg-web/package.json ./apps/bkg-web/
+COPY --chown=bkg:bkg --from=web-builder /build/web/dist/bkg-web ./core/frontend/admin-ui/dist
+COPY --chown=bkg:bkg core/frontend/admin-ui/package.json ./core/frontend/admin-ui/
 
-COPY --chown=bkg:bkg --from=llmserver-builder /build/llmserver/target/release/bkg-llmserver ./plugins/llmserver/target/release/bkg-llmserver
-COPY --chown=bkg:bkg plugins/llmserver/start.sh plugins/llmserver/config.json ./plugins/llmserver/
+COPY --chown=bkg:bkg --from=llmserver-builder /build/llmserver/target/release/bkg-llmserver ./core/plugins/llmserver/target/release/bkg-llmserver
+COPY --chown=bkg:bkg core/plugins/llmserver/start.sh core/plugins/llmserver/config.json ./core/plugins/llmserver/
 
-COPY --chown=bkg:bkg --from=repoagent-builder /opt/repoagent ./plugins/repoagent/.venv
-COPY --chown=bkg:bkg plugins/repoagent/start.sh plugins/repoagent/config.json ./plugins/repoagent/
+COPY --chown=bkg:bkg --from=repoagent-builder /opt/repoagent ./core/plugins/repoagent/.venv
+COPY --chown=bkg:bkg core/plugins/repoagent/start.sh core/plugins/repoagent/config.json ./core/plugins/repoagent/
 
-COPY --chown=bkg:bkg --from=apikeys-builder /build/apikeys ./plugins/apikeys
-COPY --chown=bkg:bkg plugins/plugins.json ./plugins/plugins.json
+COPY --chown=bkg:bkg --from=apikeys-builder /build/apikeys ./core/plugins/apikeys
+COPY --chown=bkg:bkg core/plugins/plugins.json ./core/plugins/plugins.json
 
-COPY --chown=bkg:bkg docker/supervisord.conf docker/start.sh ./docker/
+COPY --chown=bkg:bkg devops/docker/supervisord.conf devops/docker/start.sh ./devops/docker/
 COPY --chown=bkg:bkg docs ./docs
 COPY --chown=bkg:bkg models ./models
 
@@ -111,4 +111,4 @@ VOLUME ["/data", "/srv/models"]
 EXPOSE 43119 43117
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["/srv/bkg/docker/start.sh"]
+CMD ["/srv/bkg/devops/docker/start.sh"]

@@ -24,11 +24,11 @@ Capabilities map directly to features exposed through the API gateway:
 - `repo.analyze`, `repo.patch` – repository analytics and patch application.
 - `auth.*` – authentication, key lifecycle, and scope validation.
 
-When introducing a new capability, add it to `PluginCapability` (`apps/bkg-api/src/plugins/plugin.types.ts`) to ensure type safety.
+When introducing a new capability, add it to `PluginCapability` (`core/backend/gateway/src/plugins/plugin.types.ts`) to ensure type safety.
 
 ## Plug-in Configuration Lifecycle
 
-Plug-in configuration is stored in SQLite (`plugins` table) and mirrored to `plugins/plugins.json` for human inspection. The admin UI writes updates through `POST /admin/plugins/:name/config`, which:
+Plug-in configuration is stored in SQLite (`plugins` table) and mirrored to `core/plugins/plugins.json` for human inspection. The admin UI writes updates through `POST /admin/plugins/:name/config`, which:
 
 1. Persists the config via `PluginService.saveConfig`.
 2. Synchronises the in-memory state and bus metadata.
@@ -42,7 +42,7 @@ Each plug-in directory should include:
 
 ## Control Centre Navigation
 
-The Angular admin UI exposes a unified control centre under `apps/bkg-web/src/app/features/plugins/`. The structure maps one-to-one to the plug-in catalog and enables quick access to individual dashboards:
+The Angular admin UI exposes a unified control centre under `core/frontend/admin-ui/src/app/features/plugins/`. The structure maps one-to-one to the plug-in catalog and enables quick access to individual dashboards:
 
 - `plugin-list/` renders `/plugins` with the complete inventory, lifecycle buttons, and capability badges.
 - `plugin-dashboard/` powers `/plugins/:name`, combining log streaming, configuration editing, and curated feature descriptions for every plug-in (brainml, candle, rustyface, llmserver, repoagent, apikeys).
@@ -74,8 +74,8 @@ Every dashboard surfaces the capabilities advertised over the plug-in bus and wi
 
 ## Adding New Plug-ins
 
-1. Create a new directory under `plugins/<name>` with executable `start.sh` and configuration files.
-2. Extend `plugins/plugins.json` with the plug-in definition (entrypoint, capabilities, autostart flag).
+1. Create a new directory under `core/plugins/<name>` with executable `start.sh` and configuration files.
+2. Extend `core/plugins/plugins.json` with the plug-in definition (entrypoint, capabilities, autostart flag).
 3. Implement the bus handshake, log streaming, and capability handlers.
 4. Document the plug-in and add automated coverage where applicable.
 5. Update the Angular admin UI if new capabilities need dedicated controls.
