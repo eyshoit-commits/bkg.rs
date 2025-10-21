@@ -1,4 +1,0 @@
-{
-  "default_scopes": ["llm.chat", "llm.embed"],
-  "session_ttl_hours": 24
-}
