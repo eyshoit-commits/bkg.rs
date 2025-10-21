@@ -23,15 +23,18 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
     private readonly database: DatabaseService,
   ) {}
 
-  onModuleInit() {
+  async onModuleInit(): Promise<void> {
     this.ensureConfigStorage();
     const configs = this.loadConfigs();
     configs.forEach((config) => this.configs.set(config.name, config));
+    await this.bus.waitUntilReady();
     for (const config of configs) {
       if (config.autostart) {
-        this.startPlugin(config.name).catch((error) => {
-          this.logger.error(`Failed to auto-start plugin ${config.name}`, error);
-        });
+        try {
+          await this.startPlugin(config.name);
+        } catch (error) {
+          this.logger.error(`Failed to auto-start plugin ${config.name}`, error as Error);
+        }
       } else {
         this.bus.ensureState(config.name, config);
         this.bus.setConfig(config.name, {
@@ -96,6 +99,7 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
   }
 
   async startPlugin(name: string): Promise<PluginRuntimeState> {
+    await this.bus.waitUntilReady();
     const existing = this.processes.get(name);
     if (existing) {
       throw new Error(`Plugin ${name} already running`);

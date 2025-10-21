@@ -30,6 +30,17 @@ export class PluginBusService
   private readonly connections = new Map<string, WebSocket>();
   private readonly states = new Map<string, PluginRuntimeState>();
   private readonly pending = new Map<string, PendingRequest>();
+  private readonly ready: Promise<void>;
+  private resolveReady?: () => void;
+  private rejectReady?: (error: Error) => void;
+
+  constructor() {
+    super();
+    this.ready = new Promise<void>((resolve, reject) => {
+      this.resolveReady = resolve;
+      this.rejectReady = reject;
+    });
+  }
 
   get port(): number {
     if (!this.httpServer) {
@@ -48,6 +59,16 @@ export class PluginBusService
 
   getPlugin(name: string): PluginRuntimeState | undefined {
     return this.states.get(name);
+  }
+
+  async waitUntilReady(): Promise<void> {
+    if (this.httpServer) {
+      const address = this.httpServer.address();
+      if (address && typeof address === 'object' && address.port) {
+        return;
+      }
+    }
+    return this.ready;
   }
 
   async request<T = unknown>(
@@ -101,7 +122,12 @@ export class PluginBusService
       const address = httpServer.address();
       if (address && typeof address === 'object') {
         this.logger.log(`Plugin bus listening on port ${address.port}`);
+        this.resolveReady?.();
       }
+    });
+    httpServer.on('error', (error) => {
+      this.logger.error('Plugin bus server error', error as Error);
+      this.rejectReady?.(error as Error);
     });
     this.httpServer = httpServer;
     this.wss = wss;

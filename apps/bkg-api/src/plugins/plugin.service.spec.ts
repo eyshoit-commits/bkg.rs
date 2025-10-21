@@ -11,6 +11,7 @@ const spawnMock = spawn as jest.MockedFunction<typeof spawn>;
 
 describe('PluginService', () => {
   const mockBus = () => ({
+    port: 43121,
     request: jest.fn(),
     setConfig: jest.fn(),
     getPlugins: jest.fn().mockReturnValue([]),
@@ -18,6 +19,7 @@ describe('PluginService', () => {
     updateState: jest.fn(),
     on: jest.fn(),
     ensureState: jest.fn(),
+    waitUntilReady: jest.fn().mockResolvedValue(undefined),
   });
 
   const mockDatabase = () => ({
@@ -98,6 +100,7 @@ describe('PluginService', () => {
     expect(child.kill).toHaveBeenCalledWith('SIGKILL');
     expect(service['processes'].has('demo')).toBe(false);
     expect(bus.updateState).toHaveBeenCalledWith('demo', expect.any(Function));
+    expect(bus.waitUntilReady).toHaveBeenCalled();
 
     waitSpy.mockRestore();
     existsSpy.mockRestore();
