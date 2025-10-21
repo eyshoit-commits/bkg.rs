@@ -14,7 +14,6 @@ import { PluginConfig } from './plugin.types';
 import { ApiKeyGuard } from '../common/guards/api-key.guard';
 
 @Controller('/api/plugins')
-@UseGuards(ApiKeyGuard)
 export class PluginsController {
   constructor(private readonly plugins: PluginService) {}
 
@@ -33,17 +32,20 @@ export class PluginsController {
   }
 
   @Post('/:name/start')
+  @UseGuards(ApiKeyGuard)
   start(@Param('name') name: string) {
     return this.plugins.startPlugin(name);
   }
 
   @Post('/:name/stop')
+  @UseGuards(ApiKeyGuard)
   async stop(@Param('name') name: string) {
     await this.plugins.stopPlugin(name);
     return { status: 'stopped' };
   }
 
   @Post('/:name/restart')
+  @UseGuards(ApiKeyGuard)
   restart(@Param('name') name: string) {
     return this.plugins.restartPlugin(name);
   }
@@ -67,6 +69,7 @@ export class PluginsController {
   }
 
   @Post('/:name/config')
+  @UseGuards(ApiKeyGuard)
   updateConfig(@Param('name') name: string, @Body() config: PluginConfig) {
     if (config.name !== name) {
       throw new BadRequestException('Plugin name mismatch');
