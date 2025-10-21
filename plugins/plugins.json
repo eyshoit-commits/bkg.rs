@@ -43,24 +43,5 @@
       "path": "/health",
       "intervalSeconds": 15
     }
-  },
-  {
-    "name": "brainml",
-    "description": "Hybrid retrieval and pipeline orchestration",
-    "entrypoint": "start.sh",
-    "args": [],
-    "env": {},
-    "autostart": false,
-    "capabilities": [
-      "brainml.index",
-      "brainml.query",
-      "brainml.train",
-      "brainml.stats",
-      "brainml.admin"
-    ],
-    "healthcheck": {
-      "path": "/health/ready",
-      "intervalSeconds": 20
-    }
   }
 ]

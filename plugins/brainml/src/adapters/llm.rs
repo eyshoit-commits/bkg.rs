@@ -4,8 +4,6 @@ use thiserror::Error;
 use tracing::{instrument, warn};
 use uuid::Uuid;
 
-use crate::core::bus::OutboundCommand;
-
 #[derive(Debug, Error)]
 pub enum LlmError {
     #[error("connection error: {0}")]
@@ -36,7 +34,7 @@ pub trait LlmClient: Send + Sync {
 
 #[derive(Clone)]
 pub struct PluginBusLlmClient {
-    pub(crate) sender: tokio::sync::mpsc::Sender<OutboundCommand>,
+    pub(crate) sender: tokio::sync::mpsc::Sender<crate::core::bus::OutboundCommand>,
 }
 
 #[async_trait]
@@ -58,10 +56,6 @@ impl LlmClient for PluginBusLlmClient {
 }
 
 impl PluginBusLlmClient {
-    pub fn new(sender: tokio::sync::mpsc::Sender<OutboundCommand>) -> Self {
-        Self { sender }
-    }
-
     async fn invoke(
         &self,
         capability: &str,
@@ -69,7 +63,7 @@ impl PluginBusLlmClient {
     ) -> LlmResult<serde_json::Value> {
         let request_id = Uuid::new_v4();
         let (resp_tx, resp_rx) = tokio::sync::oneshot::channel();
-        let cmd = OutboundCommand::Invoke {
+        let cmd = crate::core::bus::OutboundCommand::Invoke {
             request_id,
             capability: capability.to_string(),
             payload,

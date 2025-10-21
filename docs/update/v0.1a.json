@@ -1,0 +1,347 @@
+```json
+{
+  "project": {
+    "name": "bkg.rs",
+    "version": "0.2.0",
+    "spec_id": "codex_bkgrs_v0_2_arch_redesign",
+    "generated_at": "2025-10-21T07:55:00Z",
+    "authors": ["lofmas", "Cascade AI"],
+    "language": "de-DE"
+  },
+  "objectives": [
+    "Ein modulares Plug-in-System mit einheitlichem AdminUI (Angular) bereitstellen.",
+    "Neue Plugins integrieren: Candle (Hugging Face Rust) und RustyFace.",
+    "Hot-Swap-Lifecycle (start/stop/restart) + Status/Logs/Telemetrie pro Plug-in.",
+    "API-Key- und Benutzerverwaltung bereitstellen (JWT).",
+    "Model-Management (Download/Cache/Validierung) implementieren.",
+    "Proxy-/Registry-Fix für Cargo/npm sicherstellen und CI reaktivieren."
+  ],
+  "repository_layout": {
+    "root": [
+      "README.md",
+      "IMPLEMENTATION_GUIDE.md",
+      "docs/",
+      "backend/",
+      "frontend/",
+      "database/",
+      "scripts/",
+      ".github/workflows/"
+    ],
+    "backend": {
+      "path": "backend/",
+      "services": [
+        "gateway/", 
+        "ml-engine/", 
+        "vector-store/", 
+        "auth-service/", 
+        "shared/"
+      ]
+    },
+    "frontend": {
+      "path": "frontend/",
+      "apps": ["admin-ui/", "web-ui/ (deprecated)"]
+    },
+    "database": {
+      "path": "database/",
+      "contents": ["migrations/", "schema.sql"]
+    },
+    "docs": {
+      "path": "docs/",
+      "files": [
+        "next.md",
+        "INDEX.md",
+        "STRUCTURE_ANALYSIS.md",
+        "GIT_REDESIGN.md",
+        "architecture/plugin_system_v0.2.md",
+        "implementation/angular_adminui_setup.md",
+        "update/v0.1a.md",
+        "deployment.md",
+        "operations.md",
+        "APPROVAL.md"
+      ]
+    }
+  },
+  "plugins": {
+    "list": [
+      {"id": "brainml", "status": "planned", "capabilities": ["index", "query", "train", "stats", "admin"]},
+      {"id": "candle", "status": "planned", "capabilities": ["model.load", "infer", "tensor.ops", "stats"]},
+      {"id": "rustyface", "status": "planned", "capabilities": ["faces.encode", "faces.search", "dataset.manage"]},
+      {"id": "llmserver", "status": "planned", "capabilities": ["chat", "embeddings"]},
+      {"id": "repoagent", "status": "planned", "capabilities": ["code.analyze", "code.search"]},
+      {"id": "apikeys", "status": "planned", "capabilities": ["keys.issue", "keys.rotate", "keys.audit"]}
+    ],
+    "runtime": {
+      "lifecycle": ["start", "stop", "restart", "status"],
+      "hotswap": true,
+      "isolation": "process",
+      "telemetry": ["cpu", "mem", "uptime", "throughput"],
+      "logs": {"stream": "websocket", "level": ["error", "warn", "info", "debug"]}
+    }
+  },
+  "backend": {
+    "gateway": {
+      "path": "backend/gateway/",
+      "description": "REST API + WebSocket + Plugin-Lifecycle",
+      "endpoints": {
+        "plugins": [
+          {"method": "GET", "path": "/api/plugins", "desc": "Alle Plugins + Status"},
+          {"method": "GET", "path": "/api/plugins/{id}", "desc": "Plugin-Details"},
+          {"method": "POST", "path": "/api/plugins/{id}/start", "desc": "Start"},
+          {"method": "POST", "path": "/api/plugins/{id}/stop", "desc": "Stop"},
+          {"method": "POST", "path": "/api/plugins/{id}/restart", "desc": "Restart"},
+          {"method": "GET", "path": "/api/plugins/{id}/status", "desc": "Status"},
+          {"method": "GET", "path": "/api/plugins/{id}/capabilities", "desc": "Capabilities"},
+          {"method": "GET", "path": "/api/plugins/{id}/logs", "desc": "Log-Backfill (optional)"},
+          {"method": "POST", "path": "/api/plugins/{id}/config", "desc": "Konfiguration aktualisieren"}
+        ],
+        "models": [
+          {"method": "GET", "path": "/api/models", "desc": "Model-Liste"},
+          {"method": "GET", "path": "/api/models/{id}", "desc": "Model-Details"},
+          {"method": "POST", "path": "/api/models/download", "desc": "Model herunterladen", "body": {"id": "string", "source": "hf|url", "revision?": "string"}},
+          {"method": "DELETE", "path": "/api/models/{id}", "desc": "Model löschen"},
+          {"method": "POST", "path": "/api/models/{id}/validate", "desc": "Model validieren"}
+        ],
+        "admin": [
+          {"method": "GET", "path": "/admin/users", "desc": "User-Liste"},
+          {"method": "POST", "path": "/admin/users", "desc": "User anlegen"},
+          {"method": "PUT", "path": "/admin/users/{id}", "desc": "User aktualisieren"},
+          {"method": "DELETE", "path": "/admin/users/{id}", "desc": "User löschen"},
+          {"method": "GET", "path": "/admin/api-keys", "desc": "API-Keys auflisten"},
+          {"method": "POST", "path": "/admin/api-keys", "desc": "API-Key erstellen"},
+          {"method": "PUT", "path": "/admin/api-keys/{id}", "desc": "API-Key aktualisieren"},
+          {"method": "PATCH", "path": "/admin/api-keys/{id}", "desc": "API-Key teilweise aktualisieren"},
+          {"method": "DELETE", "path": "/admin/api-keys/{id}", "desc": "API-Key löschen"},
+          {"method": "POST", "path": "/admin/api-keys/{id}/rotate", "desc": "API-Key rotieren"}
+        ],
+        "auth": [
+          {"method": "POST", "path": "/auth/login", "desc": "JWT Login"},
+          {"method": "POST", "path": "/auth/refresh", "desc": "JWT Refresh"},
+          {"method": "GET", "path": "/auth/me", "desc": "Eigene Session"}
+        ]
+      },
+      "websocket": {
+        "base": "/ws/plugins",
+        "topics": [
+          {"topic": "status", "payload": {"id": "string", "status": "running|stopped|error", "uptime": "number"}},
+          {"topic": "logs", "payload": {"id": "string", "level": "error|warn|info|debug", "message": "string", "ts": "iso8601"}},
+          {"topic": "telemetry", "payload": {"id": "string", "cpu": "number", "mem": "number", "throughput": "number"}}
+        ],
+        "subscribe": {"action": "SUB", "fields": ["topic", "pluginId?"]},
+        "unsubscribe": {"action": "UNSUB", "fields": ["topic", "pluginId?"]}
+      }
+    },
+    "ml_engine": {
+      "path": "backend/ml-engine/",
+      "desc": "Candle + RustyFace + BrainML-Bridges",
+      "capabilities": [
+        "candle.model.load", "candle.model.run", "candle.stats",
+        "rustyface.encode", "rustyface.search",
+        "brainml.index", "brainml.query"
+      ]
+    },
+    "vector_store": {
+      "path": "backend/vector-store/",
+      "desc": "Vektorindex + Snapshot/Restore",
+      "capabilities": ["collections.create", "collections.snapshot", "collections.restore", "vectors.upsert", "vectors.query"]
+    },
+    "auth_service": {
+      "path": "backend/auth-service/",
+      "desc": "JWT + API Keys + Rollen",
+      "roles": ["admin", "developer", "readonly"],
+      "permissions": [
+        "read:models", "write:models",
+        "read:documents", "write:documents",
+        "read:analytics",
+        "admin:users", "admin:settings", "admin:api_keys"
+      ]
+    },
+    "shared": {
+      "path": "backend/shared/",
+      "contents": ["types/", "errors/", "config/", "telemetry/"]
+    }
+  },
+  "frontend": {
+    "admin_ui": {
+      "path": "frontend/admin-ui/",
+      "framework": "Angular 18 (Standalone Components)",
+      "routes": [
+        "/",
+        "/dashboard",
+        "/plugins",
+        "/plugins/brainml",
+        "/plugins/candle",
+        "/plugins/rustyface",
+        "/plugins/llmserver",
+        "/plugins/repoagent",
+        "/plugins/apikeys",
+        "/settings",
+        "/users",
+        "/api-keys"
+      ],
+      "shared_components": [
+        "PluginHeader",
+        "PluginStats",
+        "PluginLogs",
+        "PluginConfig",
+        "StatusBadge",
+        "ConfirmDialog"
+      ],
+      "stores": ["PluginStore (Signals)", "AuthStore", "TelemetryStore"],
+      "ws": {"endpoint": "/ws/plugins", "autoReconnect": true}
+    }
+  },
+  "database": {
+    "engine": "PostgreSQL",
+    "tables": [
+      {"name": "users", "columns": ["id uuid pk", "email text unique", "name text", "role text", "password_hash text", "created_at timestamptz"]},
+      {"name": "api_keys", "columns": ["id uuid pk", "user_id uuid fk", "token_hash text", "permissions jsonb", "expires_at timestamptz", "created_at timestamptz", "revoked boolean"]},
+      {"name": "models", "columns": ["id text pk", "source text", "revision text", "status text", "bytes bigint", "checksum text", "created_at timestamptz"]},
+      {"name": "documents", "columns": ["id uuid pk", "path text", "meta jsonb", "created_at timestamptz"]},
+      {"name": "embeddings", "columns": ["id uuid pk", "doc_id uuid fk", "vector vector", "dim int", "model_id text", "created_at timestamptz"]},
+      {"name": "analytics_events", "columns": ["id uuid pk", "kind text", "meta jsonb", "ts timestamptz"]}
+    ],
+    "migrations_dir": "database/migrations/"
+  },
+  "security": {
+    "auth": "JWT (HS256/RS256)",
+    "api_keys": "hashed storage + rotation",
+    "rate_limit": {"window_sec": 60, "max": 600},
+    "cors": {"origins": ["*"], "allow_credentials": false},
+    "tls": {"staging": true, "hsts": true},
+    "audit": {"events": ["login", "key.create", "key.rotate", "plugin.lifecycle", "model.download"]}
+  },
+  "ci_cd": {
+    "workflows": [
+      {
+        "name": "ci.yml",
+        "jobs": [
+          {"name": "rust_fmt_clippy_test", "steps": ["cargo fmt -- --check", "cargo clippy -- -D warnings", "cargo test --release"]},
+          {"name": "node_build", "steps": ["npm ci", "npm run lint", "npm run build"], "working_directory": "frontend/admin-ui"},
+          {"name": "docker_build", "steps": ["docker buildx build --platform linux/amd64 -t bkg/gateway:dev ."], "needs": ["rust_fmt_clippy_test", "node_build"]}
+        ]
+      }
+    ],
+    "proxy_setup_snippets": {
+      "cargo": "[source.crates-io]\nreplace-with = \"crates-io-mirror\"\n\n[source.crates-io-mirror]\nregistry = \"https://github.com/rust-lang/crates.io-index\"",
+      "npm": "npm config set registry https://registry.npmjs.org/"
+    }
+  },
+  "phases": [
+    {
+      "name": "Phase 1 - Foundation",
+      "duration_weeks": 2,
+      "commits": [
+        "fix(build): configure cargo/npm proxy",
+        "feat(core): implement plugin registry & lifecycle",
+        "feat(plugins): add candle plugin skeleton",
+        "feat(plugins): add rustyface plugin skeleton"
+      ],
+      "exit_criteria": [
+        "GET /api/plugins liefert Liste",
+        "POST /api/plugins/{id}/start|stop|restart funktionsfähig",
+        "WS /ws/plugins status/logs/telemetry funktioniert lokal"
+      ]
+    },
+    {
+      "name": "Phase 2 - AdminUI",
+      "duration_weeks": 3,
+      "commits": [
+        "feat(frontend): scaffold admin-ui (Angular 18)",
+        "feat(admin-ui): plugin routes & shared components",
+        "feat(admin-ui): websocket integration + stores",
+        "feat(admin-ui): dashboards brainml/candle/rustyface/llmserver/repoagent/apikeys",
+        "chore(frontend): styling + guards"
+      ],
+      "exit_criteria": [
+        "Routen /plugins/<name> rendern Dashboards",
+        "Start/Stop/Restart Buttons triggern Backend",
+        "Logs & Telemetrie live sichtbar"
+      ]
+    },
+    {
+      "name": "Phase 3 - API/Models/Tests",
+      "duration_weeks": 2,
+      "commits": [
+        "feat(api): model management endpoints",
+        "feat(api): admin users/api-keys endpoints",
+        "test(e2e): gateway<->admin-ui integration tests"
+      ],
+      "exit_criteria": [
+        "Model-Download/Validate/Delete via UI",
+        "API-Keys erstellen/rotieren via UI",
+        "E2E Tests grün in CI"
+      ]
+    },
+    {
+      "name": "Phase 4 - Release",
+      "duration_weeks": 1,
+      "commits": [
+        "docs: update docs & index",
+        "release: tag v0.2.0 + docker images"
+      ],
+      "exit_criteria": [
+        "Docker-Images gebaut",
+        "CHANGELOG/Docs aktualisiert",
+        "Tag v0.2.0 gepusht"
+      ]
+    }
+  ],
+  "codegen_contracts": {
+    "backend_files": [
+      {"path": "backend/gateway/src/main.rs", "desc": "Server-Bootstrap (REST + WS)"},
+      {"path": "backend/gateway/src/routes/plugins.rs", "desc": "Plugin REST Endpoints"},
+      {"path": "backend/gateway/src/ws/mod.rs", "desc": "WebSocket Hub (/ws/plugins)"},
+      {"path": "backend/shared/src/plugin_traits.rs", "desc": "Plugin-Trait & Telemetry structs"},
+      {"path": "backend/shared/src/types.rs", "desc": "DTOs (PluginInfo, Capability, Status)"},
+      {"path": "backend/ml-engine/src/candle_plugin.rs", "desc": "Candle-Plugin Skeleton"},
+      {"path": "backend/ml-engine/src/rustyface_plugin.rs", "desc": "RustyFace-Plugin Skeleton"},
+      {"path": "backend/ml-engine/src/brainml_bridge.rs", "desc": "Bridge zu BrainML"},
+      {"path": "backend/vector-store/src/lib.rs", "desc": "Vektor-API + Snapshots"},
+      {"path": "backend/auth-service/src/lib.rs", "desc": "JWT, API-Keys, Permissions"}
+    ],
+    "frontend_files": [
+      {"path": "frontend/admin-ui/src/app/app.routes.ts", "desc": "Hauptrouting"},
+      {"path": "frontend/admin-ui/src/app/core/services/plugin-api.service.ts", "desc": "REST Client"},
+      {"path": "frontend/admin-ui/src/app/core/services/ws.service.ts", "desc": "WebSocket Client"},
+      {"path": "frontend/admin-ui/src/app/shared/components/plugin-header.component.ts", "desc": "Header + Lifecycle Buttons"},
+      {"path": "frontend/admin-ui/src/app/shared/components/plugin-stats.component.ts", "desc": "Telemetrie"},
+      {"path": "frontend/admin-ui/src/app/shared/components/plugin-logs.component.ts", "desc": "Log-Stream"},
+      {"path": "frontend/admin-ui/src/app/features/plugins/brainml/brainml-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/plugins/candle/candle-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/plugins/rustyface/rustyface-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/plugins/llmserver/llm-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/plugins/repoagent/repoagent-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/plugins/apikeys/apikeys-dashboard.component.ts", "desc": "Dashboard"}
+    ]
+  },
+  "acceptance_tests": [
+    {"id": "AT-PLUG-001", "desc": "Pluginliste liefert alle Plugins mit Status", "method": "GET /api/plugins", "expect": {"status": 200, "body.plugins[].id": "non-empty"}},
+    {"id": "AT-PLUG-002", "desc": "Start/Stop/Restart funktioniert", "method": "POST /api/plugins/{id}/start|stop|restart", "expect": {"status": 200}},
+    {"id": "AT-WS-003", "desc": "WS liefert status/logs/telemetry Events", "method": "WS /ws/plugins SUB", "expect": {"event": "telemetry", "fields": ["cpu", "mem"]}},
+    {"id": "AT-MOD-004", "desc": "Model-Download via API", "method": "POST /api/models/download", "expect": {"status": 202}},
+    {"id": "AT-AUTH-005", "desc": "API-Key erstellen/rotieren", "method": "POST /admin/api-keys", "expect": {"status": 201}}
+  ],
+  "commands": {
+    "bootstrap": [
+      "npm config set registry https://registry.npmjs.org/",
+      "echo '[source.crates-io]\\nreplace-with = \"crates-io-mirror\"\\n\\n[source.crates-io-mirror]\\nregistry = \"https://github.com/rust-lang/crates.io-index\"' > ~/.cargo/config.toml",
+      "cargo build -p gateway",
+      "cd frontend/admin-ui && npm ci && npm run build"
+    ],
+    "dev": [
+      "cargo run -p gateway",
+      "cd frontend/admin-ui && npm start"
+    ],
+    "test": [
+      "cargo fmt -- --check && cargo clippy -- -D warnings && cargo test --release",
+      "cd frontend/admin-ui && npm run lint && npm test"
+    ]
+  },
+  "notes": {
+    "design_choice": "Ein AdminUI mit Routen /plugins/<name> statt separater UIs.",
+    "hotswap": "Pro Plugin eigener Prozess; Registry verwaltet Lifecycle und WS-Streams.",
+    "extensibility": "Neues Plugin = Ordner + Trait-Impl + Route-Mount + UI-Dashboard."
+  },
+  "next_action": "Feature-Branch 'redesign/v0.2' erstellen, diese Spezifikation committen und Phase 1 beginnen."
+}
+```

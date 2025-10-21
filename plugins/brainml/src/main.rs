@@ -8,8 +8,8 @@ use tokio::signal;
 use tokio::sync::oneshot;
 use tracing::{error, info};
 
-use brainml::adapters::braindb::{BraindbClient, PluginBusBraindbClient};
-use brainml::adapters::llm::{LlmClient, PluginBusLlmClient};
+use brainml::adapters::braindb::{BraindbClient, NullBraindbClient};
+use brainml::adapters::llm::{LlmClient, NullLlmClient};
 use brainml::core::bus::{channel, start_bus, Handler, OutboundCommand};
 use brainml::core::config::{BrainmlConfig, BrainmlConfigLoader};
 use brainml::core::pipeline::PipelineManager;
@@ -31,34 +31,22 @@ mod plugin_interface {
 
 use plugin_interface::BkgPlugin;
 
-const HEALTH_READY: &str = "ready";
-const HEALTH_STOPPING: &str = "stopping";
-
 struct BrainmlPlugin {
     name: String,
     state: brainml::api::AppState,
     bus_handle: Option<tokio::task::JoinHandle<()>>,
     server_handle: Option<tokio::task::JoinHandle<()>>,
     shutdown_tx: Option<oneshot::Sender<()>>,
-    command_sender: tokio::sync::mpsc::Sender<OutboundCommand>,
-    command_receiver: Option<tokio::sync::mpsc::Receiver<OutboundCommand>>,
 }
 
 impl BrainmlPlugin {
-    fn new(
-        name: String,
-        state: brainml::api::AppState,
-        command_sender: tokio::sync::mpsc::Sender<OutboundCommand>,
-        command_receiver: tokio::sync::mpsc::Receiver<OutboundCommand>,
-    ) -> Self {
+    fn new(name: String, state: brainml::api::AppState) -> Self {
         Self {
             name,
             state,
             bus_handle: None,
             server_handle: None,
             shutdown_tx: None,
-            command_sender,
-            command_receiver: Some(command_receiver),
         }
     }
 }
@@ -89,30 +77,20 @@ impl BkgPlugin for BrainmlPlugin {
 
         let handlers = build_handlers(self.state.clone());
         let bus_url = bus_endpoint(&config);
-        let receiver = self
-            .command_receiver
-            .take()
-            .ok_or_else(|| anyhow::anyhow!("command channel already consumed"))?;
+        let (tx, rx) = channel();
         let bus_handle = start_bus(
             self.name.clone(),
             &bus_url,
             port,
             capabilities(),
             serde_json::json!({"version": env!("CARGO_PKG_VERSION")}),
-            receiver,
-            self.command_sender.clone(),
+            rx,
+            tx.clone(),
             handlers,
         )
         .await
         .map_err(|err| anyhow::anyhow!("failed to start bus: {err}"))?;
         self.bus_handle = Some(bus_handle);
-        self.command_sender
-            .send(OutboundCommand::Health {
-                status: HEALTH_READY.to_string(),
-                detail: None,
-            })
-            .await
-            .map_err(|err| anyhow::anyhow!("failed to publish ready health: {err}"))?;
         Ok(())
     }
 
@@ -121,13 +99,6 @@ impl BkgPlugin for BrainmlPlugin {
     }
 
     async fn shutdown(&mut self) -> Result<()> {
-        let _ = self
-            .command_sender
-            .send(OutboundCommand::Health {
-                status: HEALTH_STOPPING.to_string(),
-                detail: None,
-            })
-            .await;
         if let Some(tx) = self.shutdown_tx.take() {
             let _ = tx.send(());
         }
@@ -234,21 +205,16 @@ fn build_handlers(state: brainml::api::AppState) -> Arc<HashMap<String, Arc<Hand
 async fn main() -> Result<()> {
     init_tracing();
     let plugin_name = std::env::var("BKG_PLUGIN_NAME").unwrap_or_else(|_| "brainml".to_string());
-    let config_path = match std::env::var("BRAINML_CONFIG") {
-        Ok(path) => PathBuf::from(path),
-        Err(_) => match std::env::current_dir() {
-            Ok(mut cwd) => {
-                cwd.push("config.json");
-                cwd
-            }
-            Err(_) => PathBuf::from("config.json"),
-        },
-    };
+    let config_path = std::env::var("BRAINML_CONFIG")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| {
+            let mut path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+            path.push("config.json");
+            path
+        });
     let config = BrainmlConfigLoader::load(&config_path)?;
-    let (command_sender, command_receiver) = channel();
-    let braindb: Arc<dyn BraindbClient> =
-        Arc::new(PluginBusBraindbClient::new(command_sender.clone()));
-    let llm: Arc<dyn LlmClient> = Arc::new(PluginBusLlmClient::new(command_sender.clone()));
+    let braindb: Arc<dyn BraindbClient> = Arc::new(NullBraindbClient::default());
+    let llm: Arc<dyn LlmClient> = Arc::new(NullLlmClient::default());
 
     let state = brainml::api::AppState {
         braindb,
@@ -258,8 +224,7 @@ async fn main() -> Result<()> {
         start_time: std::time::Instant::now(),
     };
 
-    let mut plugin =
-        BrainmlPlugin::new(plugin_name, state, command_sender.clone(), command_receiver);
+    let mut plugin = BrainmlPlugin::new(plugin_name, state);
     plugin.init(config).await?;
 
     let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
