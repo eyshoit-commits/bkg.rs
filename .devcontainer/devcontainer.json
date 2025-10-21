@@ -1,0 +1,54 @@
+{
+  "name": "bkg.rs v0.2 Development",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-1-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [43117, 43119, 43121],
+  "portsAttributes": {
+    "43117": {
+      "label": "Web UI",
+      "onAutoForward": "notify"
+    },
+    "43119": {
+      "label": "API Gateway",
+      "onAutoForward": "notify"
+    },
+    "43121": {
+      "label": "Plugin Bus",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "Angular.ng-template",
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot"
+      ],
+      "settings": {
+        "rust-analyzer.checkOnSave.command": "clippy",
+        "[rust]": {
+          "editor.defaultFormatter": "rust-lang.rust-analyzer",
+          "editor.formatOnSave": true
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        }
+      }
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "updateContentCommand": "false",
+  "remoteUser": "vscode",
+  "mounts": [
+    "source=${localEnv:HOME}/.cargo,target=/home/vscode/.cargo,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.npm,target=/home/vscode/.npm,type=bind,consistency=cached"
+  ]
+}
