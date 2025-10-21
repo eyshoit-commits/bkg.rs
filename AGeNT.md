@@ -15,12 +15,13 @@ Jede Hauptfunktion – also LLM-Server, RepoAgent-Integration und das API-Key-Sy
 * **Projektname:** `bkg`
 * **Struktur (Monorepo):**
 
-  * `/apps/bkg-web` → Frontend als Angular 17 + Tailwind CSS-App
-  * `/apps/bkg-api` → Backend als NestJS-Server (Node 18+), zugleich Plug-in-Host
-  * `/plugins/llmserver` → Plug-in für den Rust-LLM-Server ([https://github.com/eyshoit-commits/llmserver-rs](https://github.com/eyshoit-commits/llmserver-rs))
-  * `/plugins/repoagent` → Plug-in für den OpenBMB RepoAgent
-  * `/plugins/apikeys` → Plug-in für Authentifizierung, Benutzer und API-Keys
-  * `/docker` → Dockerfile, supervisord.conf, start.sh
+  * `/core/backend/gateway` → Backend als NestJS-Server (Node 20), zugleich Plug-in-Host
+  * `/core/frontend/admin-ui` → Angular 17 + Tailwind Admin-UI
+  * `/core/plugins` → Alle Plug-ins (llmserver, repoagent, apikeys, brainml, candle, rustyface)
+  * `/core/database` → Migrationen & Schema (SQLite/PostgreSQL vorbereitet)
+  * `/core/config` → Zentrale Konfigurations-Templates
+  * `/devops/docker` → Dockerfile, supervisord, Compose
+  * `/devops/scripts` → Hilfsskripte (Start, Modelldownload)
   * `/models` → GGUF-Modelldateien (werden beim Build über `--build-arg` eingebunden)
 
 ---

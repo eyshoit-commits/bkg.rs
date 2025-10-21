@@ -3,7 +3,7 @@
 ## 📦 Was wurde erstellt
 
 ### 1. Docker Compose Konfiguration
-- **Datei**: `docker-compose.yml`
+- **Datei**: `devops/docker/docker-compose.yml`
 - **Services**: 1 Service (bkg) mit allen Komponenten
 - **Ports**: 43117 (Web), 43119 (API), 43121 (Plugin Bus)
 - **Volumes**: `bkg-data` für Persistenz, `./models` für GGUF-Modelle
@@ -21,8 +21,8 @@
   - Qualität: f16 (float16)
 
 ### 3. Startscripts
-- **`docker-start.sh`**: Startet Docker Compose mit Validierung
-- **`download-models.sh`**: Lädt GGUF-Modelle herunter
+- **`devops/scripts/docker-start.sh`**: Startet Docker Compose mit Validierung
+- **`devops/scripts/download-models.sh`**: Lädt GGUF-Modelle herunter
 - **`.dockerignore`**: Optimiert Docker Build
 
 ### 4. Dokumentation
@@ -35,26 +35,20 @@
 
 ```bash
 # Modelle herunterladen (einmalig)
-./download-models.sh
+./devops/scripts/download-models.sh
 
 # Starten
-./docker-start.sh
+./devops/scripts/docker-start.sh
 ```
 
 ### Option 2: Manuell
 
 ```bash
 # Build
-docker-compose build
+docker compose -f devops/docker/docker-compose.yml build
 
 # Start
-docker-compose up
-```
-
-### Option 3: Lokal (Entwicklung)
-
-```bash
-./dev-start.sh
+docker compose -f devops/docker/docker-compose.yml up
 ```
 
 ## 📊 Architektur
@@ -156,10 +150,10 @@ BKG_PLUGIN_BUS_PORT=43121             # Plugin-Bus-Port
 ### Build schlägt fehl
 ```bash
 # Neu bauen ohne Cache
-docker-compose build --no-cache
+docker compose -f devops/docker/docker-compose.yml build --no-cache
 
 # Mit Verbose-Output
-docker-compose build --verbose
+docker compose -f devops/docker/docker-compose.yml build --verbose
 ```
 
 ### Port bereits in Benutzung
@@ -168,9 +162,9 @@ docker-compose build --verbose
 docker ps | grep bkg
 
 # Stoppe ihn
-docker-compose down
+docker compose -f devops/docker/docker-compose.yml down
 
-# Oder ändere Ports in docker-compose.yml
+# Oder ändere Ports in devops/docker/docker-compose.yml
 ```
 
 ### Modelle nicht gefunden
@@ -185,10 +179,10 @@ ls -lh models/
 ### Container startet nicht
 ```bash
 # Logs anschauen
-docker-compose logs -f bkg
+docker compose -f devops/docker/docker-compose.yml logs -f bkg
 
 # Mit Timestamp
-docker-compose logs -f --timestamps bkg
+docker compose -f devops/docker/docker-compose.yml logs -f --timestamps bkg
 ```
 
 ## 📚 Weitere Ressourcen
@@ -202,7 +196,7 @@ docker-compose logs -f --timestamps bkg
 ## 🎯 Nächste Schritte
 
 1. **Build abwarten**: Docker Container wird gerade gebaut
-2. **Container starten**: `docker-compose up`
+2. **Container starten**: `docker compose -f devops/docker/docker-compose.yml up`
 3. **Frontend öffnen**: http://localhost:43117
 4. **API testen**: `curl http://localhost:43119/health`
 5. **Plug-ins verwalten**: Admin-Dashboard verwenden

@@ -29,12 +29,12 @@
 ```
 AdminUI (Angular 17)
 ├── Sidebar mit Plugin-Liste
-├── /plugins/brainml
-├── /plugins/candle
-├── /plugins/rustyface
-├── /plugins/llmserver
-├── /plugins/repoagent
-└── /plugins/apikeys
+├── /core/plugins/brainml
+├── /core/plugins/candle
+├── /core/plugins/rustyface
+├── /core/plugins/llmserver
+├── /core/plugins/repoagent
+└── /core/plugins/apikeys
 
 Jedes Dashboard:
 ├── PluginHeaderComponent (Start/Stop/Restart)
@@ -50,7 +50,7 @@ Jedes Dashboard:
 ### Was ist enthalten:
 
 1. **Ordnerstruktur** (vollständig)
-   - apps/admin-ui/ mit allen Verzeichnissen
+   - core/frontend/admin-ui/ mit allen Verzeichnissen
    - core/services, core/components
    - features/plugins mit allen 6 Plug-ins
 
