@@ -5,7 +5,11 @@
 **Autor:** lofmas
 
 ## Zusammenfassung
+<<<<<<< ours
 - NestJS-Gateway `core/backend/gateway` orchestriert das Plug-in-Ökosystem, verwaltet Subprozesse und exponiert OpenAI-kompatible Routen plus Admin- und Health-APIs.  
+=======
+- NestJS-Gateway `apps/bkg-api` orchestriert das Plug-in-Ökosystem, verwaltet Subprozesse und exponiert OpenAI-kompatible Routen plus Admin- und Health-APIs.  
+>>>>>>> theirs
 - Vier Plug-ins (Rust-LLM, RepoAgent, API-Keys, BrainML) registrieren ihre Fähigkeiten, streamen Logs und interagieren über den Plugin-Bus mit der SQLite-Konfiguration.  
 - Die Angular-17/Tailwind-Oberfläche bietet Chat-, Plug-in- und Admin-Ansichten inklusive Live-Log-Streaming; Docker-Assets bündeln alle Komponenten zu einem Multiservice-Container.
 
@@ -25,7 +29,11 @@
 ## Aktive Module & Plugins
 - `bkg-api` Host (Plugin-Bus, Auth-Guard, Admin/Chat/Health-Routen).  
 - Plug-ins: `llmserver` (Chat+Embedding), `repoagent` (Repo-Analyse), `apikeys` (Auth/API-Key), `brainml` (Index/Query/Train/Admin/Stats).  
+<<<<<<< ours
 - Gemeinsame SQLite-Konfiguration (`/data/bkg.db`) plus zentrale `core/plugins/plugins.json` für Autostart und Capabilities.
+=======
+- Gemeinsame SQLite-Konfiguration (`/data/bkg.db`) plus zentrale `plugins/plugins.json` für Autostart und Capabilities.
+>>>>>>> theirs
 
 ## Fehlerhafte Komponenten
 - Rust-Build-Pipeline: `cargo clippy -- -D warnings` und `cargo test --release` scheitern aufgrund eines 403-Proxy-Blocks auf crates.io; Code selbst kompiliert lokal.  

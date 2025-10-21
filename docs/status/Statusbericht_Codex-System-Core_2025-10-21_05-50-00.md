@@ -23,9 +23,15 @@
 - Tailwind CSS und HeadlessUI für Layout, Markdown-Rendering im Chat, WebSocket-basierte Log-Streams.
 
 ## Aktive Module & Plugins
+<<<<<<< ours
 - `core/backend/gateway` als Plug-in-Host mit Auth, Admin, Chat/Embeddings und Health-Routen.
 - Plug-ins: `llmserver` (Chat/Embedding), `repoagent` (Codeanalyse), `apikeys` (Auth & Keyverwaltung), `brainml` (Index/Query/Train/Admin/Stats).
 - Gemeinsame Ressourcen: SQLite-Datenbank `/data/bkg.db`, zentrale Plug-in-Konfiguration `core/plugins/plugins.json`, busbasierte RPC-Aufrufe.
+=======
+- `apps/bkg-api` als Plug-in-Host mit Auth, Admin, Chat/Embeddings und Health-Routen.
+- Plug-ins: `llmserver` (Chat/Embedding), `repoagent` (Codeanalyse), `apikeys` (Auth & Keyverwaltung), `brainml` (Index/Query/Train/Admin/Stats).
+- Gemeinsame Ressourcen: SQLite-Datenbank `/data/bkg.db`, zentrale Plug-in-Konfiguration `plugins/plugins.json`, busbasierte RPC-Aufrufe.
+>>>>>>> theirs
 
 ## Fehlerhafte Komponenten
 - `cargo clippy -- -D warnings` und `cargo test --release` scheitern weiterhin an 403-Proxy-Fehlern Richtung crates.io.

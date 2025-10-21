@@ -6,6 +6,7 @@ The BKG repository is a polyglot monorepo with the following top-level areas:
 
 | Path | Description |
 | --- | --- |
+<<<<<<< ours
 | `core/backend/gateway` | NestJS 10 application that hosts the HTTP API, manages plug-in lifecycles, and exposes health/admin routes. |
 | `core/frontend/admin-ui` | Angular 17 + Tailwind frontend that surfaces chat, plug-in controls, and administration tooling. |
 | `core/plugins/llmserver` | Rust plug-in that wraps the llmserver runtime, exposes chat + embedding capabilities, and connects to the plug-in bus. |
@@ -13,6 +14,14 @@ The BKG repository is a polyglot monorepo with the following top-level areas:
 | `core/plugins/apikeys` | NodeJS plug-in providing authentication, API key management, and scope enforcement against SQLite storage. |
 | `devops/docker/` | Container build assets (Dockerfile, supervisord, Compose). |
 | `devops/scripts/` | Operational helper scripts (startup, model download, diagnostics). |
+=======
+| `apps/bkg-api` | NestJS 10 application that hosts the HTTP API, manages plug-in lifecycles, and exposes health/admin routes. |
+| `apps/bkg-web` | Angular 17 + Tailwind frontend that surfaces chat, plug-in controls, and administration tooling. |
+| `plugins/llmserver` | Rust plug-in that wraps the llmserver runtime, exposes chat + embedding capabilities, and connects to the plug-in bus. |
+| `plugins/repoagent` | Python FastAPI plug-in that hosts RepoAgent-like repository analysis and file patch workflows. |
+| `plugins/apikeys` | NodeJS plug-in providing authentication, API key management, and scope enforcement against SQLite storage. |
+| `docker/` | Container build assets (Dockerfile, supervisord, startup scripts). |
+>>>>>>> theirs
 | `models/` | Placeholder for GGUF model artefacts mounted at build time. |
 | `docs/` | Documentation set covering architecture, plug-ins, deployment, and operations. |
 
@@ -21,7 +30,11 @@ The BKG repository is a polyglot monorepo with the following top-level areas:
 ```
 +--------------------+          +----------------------+
 | Angular Frontend   |  HTTPS   | NestJS API Gateway   |
+<<<<<<< ours
 | (core/frontend/admin-ui)     +--------->+ (core/backend/gateway)       |
+=======
+| (apps/bkg-web)     +--------->+ (apps/bkg-api)       |
+>>>>>>> theirs
 +--------------------+          | - REST API           |
                                 | - Plug-in lifecycle  |
                                 | - SSE log streaming  |

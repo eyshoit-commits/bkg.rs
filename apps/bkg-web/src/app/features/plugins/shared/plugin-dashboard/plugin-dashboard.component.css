@@ -1,0 +1,12 @@
+:host {
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+a.text-primary:hover {
+  text-decoration: underline;
+}
