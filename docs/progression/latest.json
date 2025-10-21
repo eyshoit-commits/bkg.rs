@@ -1,0 +1,22 @@
+{
+  "projekt": "Codex-System-Core",
+  "datum": "2025-10-21",
+  "uhrzeit": "05:50 UTC",
+  "fortschritt_prozent": "64%",
+  "core_sprachen": "TypeScript (NestJS, Angular); Rust (brainml, llmserver); Python (RepoAgent); Node.js (apikeys); Shell/Docker tooling",
+  "webui_sprachen": "Angular 17 mit Tailwind CSS, RxJS und Signals",
+  "aktive_module": [
+    "bkg-api Gateway",
+    "llmserver Plug-in",
+    "repoagent Plug-in",
+    "apikeys Plug-in",
+    "brainml Plug-in",
+    "bkg-web Frontend"
+  ],
+  "fehlerhafte_module": [
+    "Rust CI Checks (cargo clippy/test) blockiert durch crates.io Proxy-403",
+    "npm Registry-Zugriffe schlagen fehl (403)"
+  ],
+  "bericht": "Statusbericht_Codex-System-Core_2025-10-21_05-50-00.md",
+  "pfad": "docs/progression/Statusbericht_Codex-System-Core_2025-10-21_05-50-00.md"
+}
