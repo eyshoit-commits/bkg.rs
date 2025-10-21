@@ -3,7 +3,13 @@ import { join } from 'path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { spawn, ChildProcess } from 'child_process';
 import { PluginBusService } from './plugin-bus.service';
-import { PluginCapability, PluginConfig, PluginRuntimeState } from './plugin.types';
+import {
+  PluginCapability,
+  PluginConfig,
+  PluginLogMessage,
+  PluginRuntimeState,
+  PluginTelemetrySnapshot,
+} from './plugin.types';
 import { DatabaseService } from '../storage/database.service';
 
 interface PluginProcess {
@@ -93,6 +99,17 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
       capabilities: config.capabilities,
       config,
     };
+  }
+
+  getLogs(name: string, limit = 200): PluginLogMessage[] {
+    return this.bus.getLogs(name, limit);
+  }
+
+  getTelemetry(name?: string): PluginTelemetrySnapshot | PluginTelemetrySnapshot[] | undefined {
+    if (name) {
+      return this.bus.getTelemetrySnapshot(name);
+    }
+    return this.bus.getAllTelemetry();
   }
 
   async startPlugin(name: string): Promise<PluginRuntimeState> {

@@ -39,6 +39,11 @@ export class AdminController {
     return { status: 'stopped' };
   }
 
+  @Post('/plugins/:name/restart')
+  restartPlugin(@Param('name') name: string) {
+    return this.plugins.restartPlugin(name);
+  }
+
   @Post('/plugins/:name/config')
   async updatePluginConfig(@Param('name') name: string, @Body() config: PluginConfig) {
     if (config.name !== name) {

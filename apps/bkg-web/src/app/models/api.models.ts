@@ -40,6 +40,16 @@ export interface PluginLogEvent {
   timestamp: string;
 }
 
+export interface PluginTelemetry {
+  plugin: string;
+  cpu: number;
+  memBytes: number;
+  modelsLoaded?: number;
+  datasets?: number;
+  entries?: number;
+  timestamp: string;
+}
+
 export interface ApiKeyRecord {
   id: string;
   user: string;
