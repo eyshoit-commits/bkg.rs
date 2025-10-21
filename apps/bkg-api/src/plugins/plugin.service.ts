@@ -128,6 +128,10 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
     child.stderr?.on('data', (data) => {
       this.logger.error(`[${name}] ${data.toString().trim()}`);
     });
+    child.on('error', (error) => {
+      this.logger.error(`Plugin ${name} failed to start`, error);
+      void this.forceStopOnFailure(name, child);
+    });
     child.on('exit', (code, signal) => {
       this.logger.warn(`Plugin ${name} exited with code ${code} signal ${signal}`);
       this.processes.delete(name);
@@ -144,7 +148,13 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
       pid: child.pid,
     }));
     this.logger.log(`Started plugin ${name} with pid ${child.pid}`);
-    return this.waitForPluginReady(name, 30_000);
+    try {
+      return await this.waitForPluginReady(name, 30_000);
+    } catch (error) {
+      this.logger.error(`Plugin ${name} failed to register in time`, error as Error);
+      this.forceStopOnFailure(name, child);
+      throw error;
+    }
   }
 
   async stopPlugin(name: string): Promise<void> {
@@ -183,6 +193,18 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
     this.bus.ensureState(config.name, config);
     this.bus.setConfig(config.name, config);
     this.persistConfig(config);
+  }
+
+  private forceStopOnFailure(name: string, child: ChildProcess) {
+    if (!child.killed) {
+      child.kill('SIGKILL');
+    }
+    this.processes.delete(name);
+    this.bus.updateState(name, (state) => ({
+      ...state,
+      status: 'stopped',
+      pid: undefined,
+    }));
   }
 
   private ensureConfigStorage() {
