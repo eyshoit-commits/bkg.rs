@@ -1,0 +1,51 @@
+[package]
+name = "brainml"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/eyshoit-commits/bkg.rs"
+description = "brainml plug-in for the bkg.rs platform"
+authors = ["bkg.rs contributors"]
+
+[lib]
+name = "brainml"
+path = "src/lib.rs"
+
+[[bin]]
+name = "brainml"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+async-trait = "0.1"
+axum = { version = "0.7", features = ["macros", "json"] }
+bytes = "1"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4", features = ["derive"] }
+config = { version = "0.14", default-features = false, features = ["json", "yaml"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = "0.21"
+tokio-stream = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"] }
+utoipa = { version = "4", features = ["axum_extras", "chrono"] }
+utoipa-swagger-ui = { version = "7", features = ["axum"] }
+validator = { version = "0.18", features = ["derive"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+indexmap = { version = "2", features = ["serde"] }
+futures-util = "0.3"
+parking_lot = "0.12"
+rand = "0.8"
+sha2 = "0.10"
+
+tower = "0.4"
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+
+[dev-dependencies]
+serde_json = "1"
+tokio = { version = "1", features = ["full"], default-features = false }
+anyhow = "1"
+pretty_assertions = "1"

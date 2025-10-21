@@ -1,0 +1,15 @@
+{
+  "name": "bkg-apikeys",
+  "version": "1.0.0",
+  "description": "API key and authentication plug-in for bkg",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.4.0",
+    "uuid": "^9.0.1",
+    "ws": "^8.17.0"
+  }
+}
