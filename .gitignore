@@ -9,8 +9,8 @@ coverage/
 # Rust
 **/target/
 Cargo.lock
-!core/plugins/brainml/Cargo.lock
-!core/plugins/llmserver/Cargo.lock
+!plugins/brainml/Cargo.lock
+!plugins/llmserver/Cargo.lock
 
 # Python
 __pycache__/

@@ -1,5 +1,0 @@
-{
-  "datasets_path": "./datasets",
-  "telemetry_interval": 10,
-  "default_dataset": "default"
-}
