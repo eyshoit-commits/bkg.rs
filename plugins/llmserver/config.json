@@ -1,0 +1,5 @@
+{
+  "prompt_template": "assistant",
+  "chat_model": "synthetic-chat",
+  "embedding_model": "synthetic-embed"
+}
