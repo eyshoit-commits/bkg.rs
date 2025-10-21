@@ -1,0 +1,9 @@
+{
+  "port": 43201,
+  "bus": "ws://127.0.0.1:43121",
+  "embedding_model": null,
+  "collection_defaults": {
+    "top_k": 10,
+    "rrf_k": 60
+  }
+}
