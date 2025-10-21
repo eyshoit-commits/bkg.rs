@@ -72,7 +72,9 @@ RUN apt-get update && \
       python3-venv \
       sqlite3 \
       libssl3 \
-      dumb-init && \
+      dumb-init \
+      build-essential \
+      python3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Non-root user
