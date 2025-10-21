@@ -1,0 +1,23 @@
+# Node
+node_modules/
+dist/
+build/
+.coverage/
+coverage/
+*.log
+
+# Rust
+**/target/
+Cargo.lock
+!plugins/brainml/Cargo.lock
+!plugins/llmserver/Cargo.lock
+
+# Python
+__pycache__/
+*.pyc
+
+# Misc
+.DS_Store
+.env
+*.sqlite
+/data/
