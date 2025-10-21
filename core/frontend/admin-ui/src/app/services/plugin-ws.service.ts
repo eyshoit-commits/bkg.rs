@@ -57,7 +57,7 @@ export class PluginWsService {
     }
     entry.count += 1;
     return new Observable<T>((observer) => {
-      const subscription = (entry as { subject: Subject<T> }).subject.subscribe(observer);
+      const subscription = (entry!.subject as unknown as Subject<T>).subscribe(observer);
       return () => {
         subscription.unsubscribe();
         this.zone.run(() => this.teardown(topic, pluginId));

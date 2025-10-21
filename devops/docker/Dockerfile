@@ -7,7 +7,7 @@ ARG PROMPT_TEMPLATE=assistant
 ###############################
 # Build llmserver plug-in
 ###############################
-FROM rust:latest as llmserver-builder
+FROM rust:1.82 as llmserver-builder
 WORKDIR /build/llmserver
 COPY core/plugins/llmserver/Cargo.toml ./Cargo.toml
 RUN mkdir src && echo "fn main() {}" > src/main.rs
@@ -72,17 +72,27 @@ RUN apt-get update && \
       python3-venv \
       sqlite3 \
       libssl3 \
-      dumb-init && \
-    rm -rf /var/lib/apt/lists/*
+      dumb-init \
+      build-essential \
+      python3-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm install -g http-server
 
-# Non-root user
+# Copy application artefacts (before user switch)
+COPY --from=api-builder /build/api/dist /srv/bkg/core/backend/gateway/dist
+COPY --from=api-builder /build/api/node_modules /srv/bkg/core/backend/gateway/node_modules
+
+# Non-root user (create before using in chown)
 RUN useradd -m -u 1000 bkg
+
+# Rebuild better-sqlite3 with current GLIBC
+RUN cd /srv/bkg/core/backend/gateway/node_modules/better-sqlite3 && npm run install
+
+# Create data directory and set permissions
+RUN mkdir -p /data && chown -R bkg:bkg /data
+RUN chown -R bkg:bkg /srv/bkg
 USER bkg
 WORKDIR /srv/bkg
-
-# Copy application artefacts
-COPY --chown=bkg:bkg --from=api-builder /build/api/dist ./core/backend/gateway/dist
-COPY --chown=bkg:bkg --from=api-builder /build/api/node_modules ./core/backend/gateway/node_modules
 COPY --chown=bkg:bkg core/backend/gateway/package.json core/backend/gateway/tsconfig*.json ./core/backend/gateway/
 
 COPY --chown=bkg:bkg --from=web-builder /build/web/dist/bkg-web ./core/frontend/admin-ui/dist

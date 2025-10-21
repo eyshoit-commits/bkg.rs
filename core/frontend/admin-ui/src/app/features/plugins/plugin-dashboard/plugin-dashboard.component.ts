@@ -286,7 +286,8 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
         if (Array.isArray(spec.executable)) {
           executable = spec.executable.map((value) => String(value));
         } else if (typeof spec.executable === 'string') {
-          executable = spec.executable.split(/\s+/).filter((token) => token.length > 0);
+          const execStr = spec.executable as string;
+          executable = execStr.split(/\s+/).filter((token: string) => token.length > 0);
         }
         return {
           name: spec.name ?? 'command',

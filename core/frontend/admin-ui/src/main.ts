@@ -4,8 +4,11 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AuthInterceptor } from './app/services/auth.interceptor';
+import { environment } from './environments/environment';
 
-if (process.env['NODE_ENV'] === 'production') {
+if (!environment.production) {
+  // Development mode
+} else {
   enableProdMode();
 }
 
