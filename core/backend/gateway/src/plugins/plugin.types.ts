@@ -3,6 +3,12 @@ export type PluginCapability =
   | 'llm.embed'
   | 'repo.analyze'
   | 'repo.patch'
+  | 'repo.tree'
+  | 'repo.file.read'
+  | 'repo.file.write'
+  | 'repo.search'
+  | 'repo.command'
+  | 'repo.commit'
   | 'auth.login'
   | 'auth.createKey'
   | 'auth.revokeKey'
@@ -28,6 +34,7 @@ export interface PluginConfig {
   env?: Record<string, string>;
   autostart?: boolean;
   capabilities: PluginCapability[];
+  settings?: Record<string, unknown>;
   healthcheck?: {
     path: string;
     intervalSeconds?: number;
@@ -110,5 +117,6 @@ export interface PluginRuntimeState {
   lastHeartbeat?: Date;
   capabilities: PluginCapability[];
   config: PluginConfig;
+  configSchema?: unknown;
   error?: string;
 }

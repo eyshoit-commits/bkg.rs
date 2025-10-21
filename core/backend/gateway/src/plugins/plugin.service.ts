@@ -126,12 +126,14 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
     if (!existsSync(entry)) {
       throw new Error(`Entrypoint ${entry} does not exist`);
     }
+    const runtimeConfigPath = this.writeRuntimeConfig(config.name, config);
     const env = {
       ...process.env,
       ...(config.env ?? {}),
       BKG_PLUGIN_BUS_PORT: this.bus.port.toString(),
       BKG_PLUGIN_NAME: name,
       BKG_DATABASE_PATH: this.database.path,
+      BKG_PLUGIN_CONFIG_PATH: runtimeConfigPath,
     };
     this.bus.ensureState(name, config);
     this.bus.setConfig(name, config);
@@ -211,6 +213,7 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
     this.bus.ensureState(config.name, config);
     this.bus.setConfig(config.name, config);
     this.persistConfig(config);
+    this.writeRuntimeConfig(config.name, config);
   }
 
   private forceStopOnFailure(name: string, child: ChildProcess) {
@@ -268,6 +271,16 @@ export class PluginService implements OnModuleInit, OnModuleDestroy {
         autostart: config.autostart ? 1 : 0,
         config: JSON.stringify(config),
       });
+  }
+
+  private writeRuntimeConfig(name: string, config: PluginConfig): string {
+    const pluginDir = join(this.configRoot, name);
+    if (!existsSync(pluginDir)) {
+      mkdirSync(pluginDir, { recursive: true });
+    }
+    const runtimePath = join(pluginDir, 'config.runtime.json');
+    writeFileSync(runtimePath, JSON.stringify(config, null, 2));
+    return runtimePath;
   }
 
   private waitForPluginReady(name: string, timeoutMs: number): Promise<PluginRuntimeState> {

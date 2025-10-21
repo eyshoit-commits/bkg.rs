@@ -1,4 +1,26 @@
 {
-  "default_root": "/workspace",
-  "max_files": 100
+  "defaultRoot": "/workspace",
+  "workspaceRoots": [
+    "/workspace"
+  ],
+  "maxFiles": 500,
+  "ignoreGlobs": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.cache/**"
+  ],
+  "commandAllowlist": [
+    {
+      "name": "lint",
+      "executable": ["npm", "run", "lint"],
+      "timeoutSeconds": 600,
+      "allowArgs": false
+    }
+  ],
+  "environment": {},
+  "enableGit": true,
+  "telemetry": {
+    "sampleIntervalSeconds": 15
+  }
 }

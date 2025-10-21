@@ -21,7 +21,8 @@ The bus protocol is intentionally lightweight JSON, enabling clients in any lang
 Capabilities map directly to features exposed through the API gateway:
 
 - `llm.chat`, `llm.embed` – conversational and embedding operations.
-- `repo.analyze`, `repo.patch` – repository analytics and patch application.
+- `repo.analyze`, `repo.patch`, `repo.tree`, `repo.file.read`, `repo.file.write`, `repo.search`, `repo.command`, `repo.commit` –
+  RepoAgent observability, file-system control, and safe command execution.
 - `auth.*` – authentication, key lifecycle, and scope validation.
 
 When introducing a new capability, add it to `PluginCapability` (`core/backend/gateway/src/plugins/plugin.types.ts`) to ensure type safety.
@@ -60,10 +61,15 @@ Every dashboard surfaces the capabilities advertised over the plug-in bus and wi
 
 ### repoagent (Python)
 
-- FastAPI service delivering repository scanning and patch application operations.
-- Uses `websockets` for bus connectivity and `aiofiles` for non-blocking file access.
-- Accepts JSON payloads describing repository paths and returns structured summaries.
-- Runs inside a per-plug-in virtual environment initialised by `start.sh`.
+- FastAPI + websockets service delivering repository analytics, search, tree browsing, file operations, command execution and git
+  commit automation through the plug-in bus capabilities (`repo.*`).
+- Enforces workspace boundaries, ignore globs, command allowlists, and git toggles driven by the plug-in settings schema
+  advertised during bus registration (`configSchema`).
+- Streams telemetry (CPU / memory) via `psutil`, health beats, and rich log events back to the control plane.
+- Ships with an Angular configuration form (`RepoagentConfigComponent`) that lets operators manage workspace roots, ignore
+  patterns, command allowlists, telemetry cadence, and environment overrides without editing raw JSON.
+- Runs inside a per-plug-in virtual environment initialised by `start.sh` and persists runtime configuration to
+  `config.runtime.json` so restarts pick up admin changes immediately.
 
 ### apikeys (NodeJS)
 

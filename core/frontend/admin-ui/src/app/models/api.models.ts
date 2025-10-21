@@ -20,6 +20,7 @@ export interface PluginState {
   port?: number | 'internal';
   capabilities: string[];
   config: PluginConfig;
+  configSchema?: unknown;
   error?: string;
 }
 
@@ -31,6 +32,28 @@ export interface PluginConfig {
   env?: Record<string, string>;
   autostart?: boolean;
   capabilities: string[];
+  settings?: Record<string, unknown>;
+}
+
+export interface RepoAgentCommandSpec {
+  name: string;
+  executable: string[];
+  timeoutSeconds: number;
+  allowArgs: boolean;
+  workingDir?: string;
+}
+
+export interface RepoAgentSettings {
+  defaultRoot: string;
+  workspaceRoots: string[];
+  maxFiles: number;
+  ignoreGlobs: string[];
+  commandAllowlist: RepoAgentCommandSpec[];
+  environment: Record<string, string>;
+  enableGit: boolean;
+  telemetry: {
+    sampleIntervalSeconds: number;
+  };
 }
 
 export interface PluginLogEvent {

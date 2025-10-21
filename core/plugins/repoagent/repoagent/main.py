@@ -6,10 +6,12 @@ import json
 import logging
 import os
 import socket
-from dataclasses import asdict, dataclass
+import time
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 import aiofiles
 import uvicorn
@@ -161,18 +163,42 @@ async def handle_bus_message(ws: websockets.WebSocketClientProtocol, message: Di
         return
     capability = message.get("capability")
     request_id = message.get("requestId")
-    payload = message.get("payload")
+    payload = message.get("payload") or {}
     try:
         if capability == "repo.analyze":
             request = AnalyzeRequest(**payload)
-            summary = await collect_repository_info(request)
-            response = {
-                "summary": asdict(summary),
-            }
+            summary = await SERVICE.analyse(request)
+            response = {"summary": asdict(summary)}
         elif capability == "repo.patch":
             request = PatchRequest(**payload)
-            changes = await apply_changes(request)
+            changes = await SERVICE.apply_patch(request)
             response = {"status": "ok", "changes": changes}
+        elif capability == "repo.tree":
+            request = TreeRequest(**payload)
+            entries = await SERVICE.list_tree(request)
+            response = {"entries": [asdict(entry) for entry in entries]}
+        elif capability == "repo.file.read":
+            request = ReadFileRequest(**payload)
+            response = await SERVICE.read_file(request)
+        elif capability == "repo.file.write":
+            request = WriteFileRequest(**payload)
+            response = await SERVICE.write_file(request)
+        elif capability == "repo.search":
+            request = SearchRequest(**payload)
+            response = await SERVICE.search(request)
+        elif capability == "repo.command":
+            request = CommandInvocationRequest(**payload)
+            result = await SERVICE.run_command(request)
+            response = {
+                "command": result.command,
+                "exitCode": result.exit_code,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "duration": result.duration_seconds,
+            }
+        elif capability == "repo.commit":
+            request = CommitRequest(**payload)
+            response = await SERVICE.commit(request)
         else:
             raise ValueError(f"Unsupported capability {capability}")
         await send(

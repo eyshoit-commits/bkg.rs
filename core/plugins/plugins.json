@@ -19,7 +19,56 @@
     "args": [],
     "env": {},
     "autostart": false,
-    "capabilities": ["repo.analyze", "repo.patch"],
+    "capabilities": [
+      "repo.analyze",
+      "repo.patch",
+      "repo.tree",
+      "repo.file.read",
+      "repo.file.write",
+      "repo.search",
+      "repo.command",
+      "repo.commit"
+    ],
+    "settings": {
+      "defaultRoot": "/workspace",
+      "workspaceRoots": [
+        "/workspace",
+        "/workspace/bkg.rs"
+      ],
+      "maxFiles": 750,
+      "ignoreGlobs": [
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/tmp/**",
+        "**/.cache/**"
+      ],
+      "commandAllowlist": [
+        {
+          "name": "lint",
+          "executable": ["npm", "run", "lint"],
+          "timeoutSeconds": 600,
+          "allowArgs": false
+        },
+        {
+          "name": "unit-tests",
+          "executable": ["npm", "test"],
+          "timeoutSeconds": 900,
+          "allowArgs": false
+        },
+        {
+          "name": "cargo-test",
+          "executable": ["cargo", "test", "--release"],
+          "timeoutSeconds": 1200,
+          "allowArgs": false
+        }
+      ],
+      "environment": {},
+      "enableGit": true,
+      "telemetry": {
+        "sampleIntervalSeconds": 15
+      }
+    },
     "healthcheck": {
       "path": "/health",
       "intervalSeconds": 30

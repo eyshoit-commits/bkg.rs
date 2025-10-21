@@ -4,8 +4,15 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../services/api.service';
-import { PluginLogEvent, PluginState, PluginTelemetry } from '../../../models/api.models';
+import {
+  PluginConfig,
+  PluginLogEvent,
+  PluginState,
+  PluginTelemetry,
+  RepoAgentSettings,
+} from '../../../models/api.models';
 import { PluginWsService } from '../../../services/plugin-ws.service';
+import { RepoagentConfigComponent } from '../repoagent/repoagent-config.component';
 
 interface PluginFeatureDescription {
   title: string;
@@ -15,7 +22,7 @@ interface PluginFeatureDescription {
 @Component({
   selector: 'app-plugin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, RepoagentConfigComponent],
   templateUrl: './plugin-dashboard.component.html',
   styleUrls: ['./plugin-dashboard.component.css']
 })
@@ -27,6 +34,8 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
   telemetry?: PluginTelemetry;
+  currentConfig?: PluginConfig;
+  repoAgentSettings?: RepoAgentSettings;
 
   private logSubscription?: Subscription;
   private routeSubscription?: Subscription;
@@ -82,7 +91,7 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
         const updated = plugins.find((item) => item.name === this.plugin?.name);
         if (updated) {
           this.plugin = updated;
-          this.configEditor = JSON.stringify(updated.config, null, 2);
+          this.updateConfigState(updated.config);
         }
       }
       if (Array.isArray(telemetry)) {
@@ -169,7 +178,11 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
     }
     this.error = null;
     try {
-      const config = JSON.parse(this.configEditor);
+      const config = JSON.parse(this.configEditor) as PluginConfig;
+      this.currentConfig = config;
+      if (this.plugin?.name === 'repoagent') {
+        this.repoAgentSettings = this.extractRepoAgentSettings(config);
+      }
       await firstValueFrom(this.api.updatePluginConfig(config));
       await this.load(this.plugin.name);
     } catch (error) {
@@ -195,13 +208,16 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
       if (!plugin) {
         this.error = `Plug-in "${pluginId}" wurde nicht gefunden.`;
         this.plugin = undefined;
+        this.currentConfig = undefined;
+        this.repoAgentSettings = undefined;
+        this.configEditor = '';
         return;
       }
       this.plugin = plugin;
-      this.configEditor = JSON.stringify(plugin.config, null, 2);
+      this.updateConfigState(plugin.config);
       this.statusSubscription = this.ws.watchStatus(plugin.name).subscribe((state) => {
         this.plugin = state;
-        this.configEditor = JSON.stringify(state.config, null, 2);
+        this.updateConfigState(state.config);
       });
       this.telemetrySubscription = this.ws.watchTelemetry(plugin.name).subscribe((snapshot) => {
         this.telemetry = snapshot;
@@ -222,5 +238,69 @@ export class PluginDashboardComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  onRepoAgentSettingsChange(settings: RepoAgentSettings): void {
+    if (!this.plugin || this.plugin.name !== 'repoagent' || !this.currentConfig) {
+      return;
+    }
+    this.repoAgentSettings = settings;
+    const updated: PluginConfig = {
+      ...this.currentConfig,
+      settings: { ...settings },
+    };
+    this.currentConfig = updated;
+    this.configEditor = JSON.stringify(updated, null, 2);
+  }
+
+  private updateConfigState(config: PluginConfig): void {
+    const cloned = JSON.parse(JSON.stringify(config)) as PluginConfig;
+    this.currentConfig = cloned;
+    this.configEditor = JSON.stringify(cloned, null, 2);
+    if (this.plugin?.name === 'repoagent') {
+      this.repoAgentSettings = this.extractRepoAgentSettings(cloned);
+    } else {
+      this.repoAgentSettings = undefined;
+    }
+  }
+
+  private extractRepoAgentSettings(config: PluginConfig | undefined): RepoAgentSettings | undefined {
+    if (!config?.settings) {
+      return undefined;
+    }
+    const settings = config.settings as Partial<RepoAgentSettings>;
+    return {
+      defaultRoot: settings.defaultRoot ?? '',
+      workspaceRoots: Array.isArray(settings.workspaceRoots)
+        ? [...settings.workspaceRoots]
+        : typeof settings.workspaceRoots === 'string'
+          ? [settings.workspaceRoots]
+          : [],
+      maxFiles: settings.maxFiles ?? 500,
+      ignoreGlobs: Array.isArray(settings.ignoreGlobs) ? [...settings.ignoreGlobs] : [],
+      commandAllowlist: (settings.commandAllowlist ?? []).map((raw) => {
+        const spec = raw as Partial<RepoAgentSettings['commandAllowlist'][number]> & {
+          executable?: unknown;
+        };
+        let executable: string[] = [];
+        if (Array.isArray(spec.executable)) {
+          executable = spec.executable.map((value) => String(value));
+        } else if (typeof spec.executable === 'string') {
+          executable = spec.executable.split(/\s+/).filter((token) => token.length > 0);
+        }
+        return {
+          name: spec.name ?? 'command',
+          executable,
+          timeoutSeconds: spec.timeoutSeconds ?? 300,
+          allowArgs: spec.allowArgs ?? false,
+          workingDir: spec.workingDir ?? undefined,
+        };
+      }),
+      environment: { ...(settings.environment ?? {}) },
+      enableGit: settings.enableGit ?? true,
+      telemetry: {
+        sampleIntervalSeconds: settings.telemetry?.sampleIntervalSeconds ?? 15,
+      },
+    };
   }
 }
