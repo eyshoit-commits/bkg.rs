@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  bkg:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        CHAT_MODEL_FILE: Qwen2-0.5B-Instruct-Q5_K_M.gguf
+        EMBEDDING_MODEL_FILE: all-MiniLM-L6-v2-ggml-model-f16.gguf
+        PROMPT_TEMPLATE: chatml
+    container_name: bkg-app
+    environment:
+      - ADMIN_PASSWORD=change-me
+      - BKG_WEB_PORT=43117
+      - BKG_API_PORT=43119
+      - BKG_PLUGIN_BUS_PORT=43121
+      - NODE_ENV=production
+      - CHAT_MODEL_FILE=Qwen2-0.5B-Instruct-Q5_K_M.gguf
+      - EMBEDDING_MODEL_FILE=all-MiniLM-L6-v2-ggml-model-f16.gguf
+      - PROMPT_TEMPLATE=chatml
+    ports:
+      - "43117:43117"
+      - "43119:43119"
+      - "43121:43121"
+    volumes:
+      - bkg-data:/data
+      - ./models:/srv/models:ro
+    restart: unless-stopped
+    networks:
+      - bkg-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:43119/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  bkg-data:
+    driver: local
+
+networks:
+  bkg-network:
+    driver: bridge
