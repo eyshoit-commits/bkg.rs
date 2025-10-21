@@ -7,6 +7,14 @@ import {
 import { Request } from 'express';
 import { PluginService } from '../../plugins/plugin.service';
 
+declare global {
+  namespace Express {
+    interface Request {
+      apiKey?: string;
+    }
+  }
+}
+
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
   constructor(private readonly plugins: PluginService) {}

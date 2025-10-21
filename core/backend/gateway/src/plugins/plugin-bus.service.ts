@@ -21,6 +21,8 @@ interface PendingRequest {
   timeout: NodeJS.Timeout;
 }
 
+type PluginStatus = 'error' | 'stopped' | 'starting' | 'running' | 'degraded';
+
 @Injectable()
 export class PluginBusService
   extends EventEmitter
@@ -239,7 +241,7 @@ export class PluginBusService
         this.updateState(plugin, (state) => ({
           ...state,
           lastHeartbeat: new Date(),
-          status: message.status === 'up' ? 'running' : 'degraded',
+          status: (message.status === 'up' ? 'running' : 'degraded') as PluginRuntimeState['status'],
         }));
         this.emit('health', message);
         return;

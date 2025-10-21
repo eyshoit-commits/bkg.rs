@@ -6,7 +6,7 @@ import { dirname } from 'path';
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   private readonly logger = new Logger(DatabaseService.name);
-  private db!: Database.Database;
+  private db!: InstanceType<typeof Database>;
   readonly path: string;
 
   constructor() {
@@ -23,7 +23,7 @@ export class DatabaseService implements OnModuleInit {
     this.createTables();
   }
 
-  get connection(): Database.Database {
+  get connection(): InstanceType<typeof Database> {
     return this.db;
   }
 
