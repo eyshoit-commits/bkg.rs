@@ -21,20 +21,6 @@ The bus protocol is intentionally lightweight JSON, enabling clients in any lang
 Capabilities map directly to features exposed through the API gateway:
 
 - `llm.chat`, `llm.embed` – conversational and embedding operations.
-<<<<<<< ours
-<<<<<<< ours
-- `repo.analyze`, `repo.patch`, `repo.tree`, `repo.file.read`, `repo.file.write`, `repo.search`, `repo.command`, `repo.commit` –
-  RepoAgent observability, file-system control, and safe command execution.
-- `auth.*` – authentication, key lifecycle, and scope validation.
-
-When introducing a new capability, add it to `PluginCapability` (`core/backend/gateway/src/plugins/plugin.types.ts`) to ensure type safety.
-
-## Plug-in Configuration Lifecycle
-
-Plug-in configuration is stored in SQLite (`plugins` table) and mirrored to `core/plugins/plugins.json` for human inspection. The admin UI writes updates through `POST /admin/plugins/:name/config`, which:
-=======
-=======
->>>>>>> theirs
 - `repo.analyze`, `repo.patch` – repository analytics and patch application.
 - `auth.*` – authentication, key lifecycle, and scope validation.
 
@@ -43,10 +29,6 @@ When introducing a new capability, add it to `PluginCapability` (`apps/bkg-api/s
 ## Plug-in Configuration Lifecycle
 
 Plug-in configuration is stored in SQLite (`plugins` table) and mirrored to `plugins/plugins.json` for human inspection. The admin UI writes updates through `POST /admin/plugins/:name/config`, which:
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 
 1. Persists the config via `PluginService.saveConfig`.
 2. Synchronises the in-memory state and bus metadata.
@@ -60,15 +42,7 @@ Each plug-in directory should include:
 
 ## Control Centre Navigation
 
-<<<<<<< ours
-<<<<<<< ours
-The Angular admin UI exposes a unified control centre under `core/frontend/admin-ui/src/app/features/plugins/`. The structure maps one-to-one to the plug-in catalog and enables quick access to individual dashboards:
-=======
 The Angular admin UI exposes a unified control centre under `apps/bkg-web/src/app/features/plugins/`. The structure maps one-to-one to the plug-in catalog and enables quick access to individual dashboards:
->>>>>>> theirs
-=======
-The Angular admin UI exposes a unified control centre under `apps/bkg-web/src/app/features/plugins/`. The structure maps one-to-one to the plug-in catalog and enables quick access to individual dashboards:
->>>>>>> theirs
 
 - `plugin-list/` renders `/plugins` with the complete inventory, lifecycle buttons, and capability badges.
 - `plugin-dashboard/` powers `/plugins/:name`, combining log streaming, configuration editing, and curated feature descriptions for every plug-in (brainml, candle, rustyface, llmserver, repoagent, apikeys).
@@ -86,28 +60,10 @@ Every dashboard surfaces the capabilities advertised over the plug-in bus and wi
 
 ### repoagent (Python)
 
-<<<<<<< ours
-<<<<<<< ours
-- FastAPI + websockets service delivering repository analytics, search, tree browsing, file operations, command execution and git
-  commit automation through the plug-in bus capabilities (`repo.*`).
-- Enforces workspace boundaries, ignore globs, command allowlists, and git toggles driven by the plug-in settings schema
-  advertised during bus registration (`configSchema`).
-- Streams telemetry (CPU / memory) via `psutil`, health beats, and rich log events back to the control plane.
-- Ships with an Angular configuration form (`RepoagentConfigComponent`) that lets operators manage workspace roots, ignore
-  patterns, command allowlists, telemetry cadence, and environment overrides without editing raw JSON.
-- Runs inside a per-plug-in virtual environment initialised by `start.sh` and persists runtime configuration to
-  `config.runtime.json` so restarts pick up admin changes immediately.
-=======
-=======
->>>>>>> theirs
 - FastAPI service delivering repository scanning and patch application operations.
 - Uses `websockets` for bus connectivity and `aiofiles` for non-blocking file access.
 - Accepts JSON payloads describing repository paths and returns structured summaries.
 - Runs inside a per-plug-in virtual environment initialised by `start.sh`.
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 
 ### apikeys (NodeJS)
 
@@ -116,15 +72,6 @@ Every dashboard surfaces the capabilities advertised over the plug-in bus and wi
 - Validates scopes by matching request paths to required capabilities (chat, embeddings, admin).
 - Issues session tokens (24-hour TTL) and API keys using cryptographically secure random bytes.
 
-<<<<<<< ours
-<<<<<<< ours
-## Adding New Plug-ins
-
-1. Create a new directory under `core/plugins/<name>` with executable `start.sh` and configuration files.
-2. Extend `core/plugins/plugins.json` with the plug-in definition (entrypoint, capabilities, autostart flag).
-=======
-=======
->>>>>>> theirs
 ## Plug-in Handbücher
 
 Ausführliche Betriebs- und UI-Leitfäden für jedes Plug-in befinden sich in `docs/plugin-guides/`:
@@ -140,10 +87,6 @@ Ausführliche Betriebs- und UI-Leitfäden für jedes Plug-in befinden sich in `d
 
 1. Create a new directory under `plugins/<name>` with executable `start.sh` and configuration files.
 2. Extend `plugins/plugins.json` with the plug-in definition (entrypoint, capabilities, autostart flag).
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 3. Implement the bus handshake, log streaming, and capability handlers.
 4. Document the plug-in and add automated coverage where applicable.
 5. Update the Angular admin UI if new capabilities need dedicated controls.
