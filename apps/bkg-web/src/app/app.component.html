@@ -1,0 +1,29 @@
+<div class="min-h-screen flex flex-col">
+  <header class="border-b border-slate-800 bg-slate-950/70 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold">{{ title }}</h1>
+        <p class="text-sm text-slate-400">Unified management for LLM, RepoAgent, and API keys</p>
+      </div>
+      <nav class="flex space-x-6">
+        <a
+          *ngFor="let tab of tabs"
+          [routerLink]="tab.path"
+          [ngClass]="{ 'tab-active text-white': isActive(tab.path), 'text-slate-400 hover:text-white': !isActive(tab.path) }"
+          class="pb-2 text-sm font-medium uppercase tracking-wide"
+          >{{ tab.label }}</a
+        >
+      </nav>
+    </div>
+  </header>
+  <main class="flex-1">
+    <div class="max-w-6xl mx-auto px-6 py-8">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+  <footer class="border-t border-slate-800 bg-slate-950/80">
+    <div class="max-w-6xl mx-auto px-6 py-3 text-xs text-slate-500">
+      © {{ title }} — secure, modular orchestration.
+    </div>
+  </footer>
+</div>
