@@ -10,8 +10,13 @@ coverage/
 **/target/
 Cargo.lock
 <<<<<<< ours
+<<<<<<< ours
 !core/plugins/brainml/Cargo.lock
 !core/plugins/llmserver/Cargo.lock
+=======
+!plugins/brainml/Cargo.lock
+!plugins/llmserver/Cargo.lock
+>>>>>>> theirs
 =======
 !plugins/brainml/Cargo.lock
 !plugins/llmserver/Cargo.lock

@@ -20,7 +20,11 @@ The Angular Admin tab exposes the same information visually and highlights degra
 - **Start/Stop** – Triggered via `POST /admin/plugins/:name/start` and `/stop` or the Plugins UI tab.
 - **Restart** – Equivalent to stop followed by start; future iterations can expose an explicit endpoint.
 <<<<<<< ours
+<<<<<<< ours
 - **Configuration** – Submit updated JSON via `POST /admin/plugins/:name/config`; persisted to SQLite and mirrored to `core/plugins/plugins.json`.
+=======
+- **Configuration** – Submit updated JSON via `POST /admin/plugins/:name/config`; persisted to SQLite and mirrored to `plugins/plugins.json`.
+>>>>>>> theirs
 =======
 - **Configuration** – Submit updated JSON via `POST /admin/plugins/:name/config`; persisted to SQLite and mirrored to `plugins/plugins.json`.
 >>>>>>> theirs
