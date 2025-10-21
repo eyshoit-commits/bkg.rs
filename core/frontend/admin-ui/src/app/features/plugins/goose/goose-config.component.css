@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+textarea,
+input[type='text'],
+input[type='number'] {
+  outline: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}

@@ -168,12 +168,12 @@
         "/",
         "/dashboard",
         "/plugins",
-        "/plugins/brainml",
-        "/plugins/candle",
-        "/plugins/rustyface",
-        "/plugins/llmserver",
-        "/plugins/repoagent",
-        "/plugins/apikeys",
+        "/core/plugins/brainml",
+        "/core/plugins/candle",
+        "/core/plugins/rustyface",
+        "/core/plugins/llmserver",
+        "/core/plugins/repoagent",
+        "/core/plugins/apikeys",
         "/settings",
         "/users",
         "/api-keys"
@@ -306,12 +306,12 @@
       {"path": "frontend/admin-ui/src/app/shared/components/plugin-header.component.ts", "desc": "Header + Lifecycle Buttons"},
       {"path": "frontend/admin-ui/src/app/shared/components/plugin-stats.component.ts", "desc": "Telemetrie"},
       {"path": "frontend/admin-ui/src/app/shared/components/plugin-logs.component.ts", "desc": "Log-Stream"},
-      {"path": "frontend/admin-ui/src/app/features/plugins/brainml/brainml-dashboard.component.ts", "desc": "Dashboard"},
-      {"path": "frontend/admin-ui/src/app/features/plugins/candle/candle-dashboard.component.ts", "desc": "Dashboard"},
-      {"path": "frontend/admin-ui/src/app/features/plugins/rustyface/rustyface-dashboard.component.ts", "desc": "Dashboard"},
-      {"path": "frontend/admin-ui/src/app/features/plugins/llmserver/llm-dashboard.component.ts", "desc": "Dashboard"},
-      {"path": "frontend/admin-ui/src/app/features/plugins/repoagent/repoagent-dashboard.component.ts", "desc": "Dashboard"},
-      {"path": "frontend/admin-ui/src/app/features/plugins/apikeys/apikeys-dashboard.component.ts", "desc": "Dashboard"}
+      {"path": "frontend/admin-ui/src/app/features/core/plugins/brainml/brainml-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/core/plugins/candle/candle-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/core/plugins/rustyface/rustyface-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/core/plugins/llmserver/llm-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/core/plugins/repoagent/repoagent-dashboard.component.ts", "desc": "Dashboard"},
+      {"path": "frontend/admin-ui/src/app/features/core/plugins/apikeys/apikeys-dashboard.component.ts", "desc": "Dashboard"}
     ]
   },
   "acceptance_tests": [

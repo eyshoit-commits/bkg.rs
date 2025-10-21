@@ -68,12 +68,12 @@ Du bist Codex AI, ein Code-Generation System für bkg.rs v0.2. Deine Aufgabe ist
 - 12 Routes:
   - `/` - Dashboard
   - `/plugins` - Plugin List
-  - `/plugins/brainml` - BrainML Dashboard
-  - `/plugins/candle` - Candle Dashboard
-  - `/plugins/rustyface` - RustyFace Dashboard
-  - `/plugins/llmserver` - LLMServer Dashboard
-  - `/plugins/repoagent` - RepoAgent Dashboard
-  - `/plugins/apikeys` - APIKeys Dashboard
+  - `/core/plugins/brainml` - BrainML Dashboard
+  - `/core/plugins/candle` - Candle Dashboard
+  - `/core/plugins/rustyface` - RustyFace Dashboard
+  - `/core/plugins/llmserver` - LLMServer Dashboard
+  - `/core/plugins/repoagent` - RepoAgent Dashboard
+  - `/core/plugins/apikeys` - APIKeys Dashboard
   - `/settings` - Settings
   - `/users` - User Management
   - `/api-keys` - API Key Management
@@ -276,12 +276,12 @@ Unsubscribe: {action: "UNSUB", topic, pluginId?}
 | `frontend/admin-ui/src/app/shared/components/plugin-header.component.ts` | Header + Lifecycle Buttons |
 | `frontend/admin-ui/src/app/shared/components/plugin-stats.component.ts` | Telemetrie |
 | `frontend/admin-ui/src/app/shared/components/plugin-logs.component.ts` | Log-Stream |
-| `frontend/admin-ui/src/app/features/plugins/brainml/brainml-dashboard.component.ts` | Dashboard |
-| `frontend/admin-ui/src/app/features/plugins/candle/candle-dashboard.component.ts` | Dashboard |
-| `frontend/admin-ui/src/app/features/plugins/rustyface/rustyface-dashboard.component.ts` | Dashboard |
-| `frontend/admin-ui/src/app/features/plugins/llmserver/llm-dashboard.component.ts` | Dashboard |
-| `frontend/admin-ui/src/app/features/plugins/repoagent/repoagent-dashboard.component.ts` | Dashboard |
-| `frontend/admin-ui/src/app/features/plugins/apikeys/apikeys-dashboard.component.ts` | Dashboard |
+| `frontend/admin-ui/src/app/features/core/plugins/brainml/brainml-dashboard.component.ts` | Dashboard |
+| `frontend/admin-ui/src/app/features/core/plugins/candle/candle-dashboard.component.ts` | Dashboard |
+| `frontend/admin-ui/src/app/features/core/plugins/rustyface/rustyface-dashboard.component.ts` | Dashboard |
+| `frontend/admin-ui/src/app/features/core/plugins/llmserver/llm-dashboard.component.ts` | Dashboard |
+| `frontend/admin-ui/src/app/features/core/plugins/repoagent/repoagent-dashboard.component.ts` | Dashboard |
+| `frontend/admin-ui/src/app/features/core/plugins/apikeys/apikeys-dashboard.component.ts` | Dashboard |
 
 ---
 

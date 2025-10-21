@@ -260,7 +260,7 @@ impl PluginBus {
 ### 2.4 NestJS API Integration
 
 ```typescript
-// apps/bkg-api/src/plugins/plugins.controller.ts
+// core/backend/gateway/src/plugins/plugins.controller.ts
 
 import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 import { PluginService } from './plugins.service';
@@ -326,7 +326,7 @@ export class PluginsController {
 ### 3.1 Plugin-State Management
 
 ```typescript
-// apps/admin-ui/src/app/shared/services/plugin.store.ts
+// core/frontend/admin-ui/src/app/shared/services/plugin.store.ts
 
 import { Injectable } from '@angular/core';
 import { signalStore, withState, withMethods, withComputed } from '@ngrx/signals';
@@ -433,7 +433,7 @@ export class PluginStore {
 ### 3.2 Shared Components
 
 ```typescript
-// apps/admin-ui/src/app/shared/components/plugin-card.component.ts
+// core/frontend/admin-ui/src/app/shared/components/plugin-card.component.ts
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -523,7 +523,7 @@ export class PluginCardComponent {
 ### 3.3 Plugin-Dashboard
 
 ```typescript
-// apps/admin-ui/src/app/admin/plugin-dashboard.component.ts
+// core/frontend/admin-ui/src/app/admin/plugin-dashboard.component.ts
 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -583,7 +583,7 @@ export class PluginDashboardComponent implements OnInit {
 ## 4. Plug-in-Beispiel: Candle
 
 ```rust
-// plugins/candle/src/lib.rs
+// core/plugins/candle/src/lib.rs
 
 use bkg_core::plugin_traits::*;
 use serde_json::{json, Value};
@@ -743,7 +743,7 @@ impl Plugin for CandlePlugin {
 ## 5. WebSocket Integration
 
 ```typescript
-// apps/admin-ui/src/app/shared/services/websocket.service.ts
+// core/frontend/admin-ui/src/app/shared/services/websocket.service.ts
 
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -800,15 +800,14 @@ export class WebSocketService {
 FROM rust:latest as rust-builder
 WORKDIR /build
 COPY core ./core
-COPY plugins ./plugins
 RUN cargo build --release -p candle -p rustyface -p brainml
 
 # Stage 2: Node.js Backend & Frontend
 FROM node:20-bullseye as node-builder
 WORKDIR /build
-COPY apps/bkg-api ./bkg-api
-COPY apps/admin-ui ./admin-ui
-RUN cd bkg-api && npm install && npm run build
+COPY core/backend/gateway ./gateway
+COPY core/frontend/admin-ui ./admin-ui
+RUN cd gateway && npm install && npm run build
 RUN cd admin-ui && npm install && npm run build
 
 # Stage 3: Runtime

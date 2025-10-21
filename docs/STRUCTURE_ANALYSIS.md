@@ -8,11 +8,11 @@
 
 ## 📊 Aktuelle Struktur-Analyse
 
-### 1. Backend (apps/bkg-api)
+### 1. Backend (core/backend/gateway)
 
 #### Aktuelle Komponenten:
 ```
-apps/bkg-api/src/
+core/backend/gateway/src/
 ├── app.module.ts              # Root Module
 ├── app.service.ts             # App Service
 ├── main.ts                    # Bootstrap
@@ -60,11 +60,11 @@ apps/bkg-api/src/
 
 ---
 
-### 2. Frontend (apps/bkg-web)
+### 2. Frontend (core/frontend/admin-ui)
 
 #### Aktuelle Komponenten:
 ```
-apps/bkg-web/src/app/
+core/frontend/admin-ui/src/app/
 ├── app.component.ts           # Root Component
 ├── app-routing.module.ts      # Routing
 ├── models/
@@ -138,10 +138,10 @@ plugins/
 
 ## 🎯 v0.2 Erweiterung - Neue Struktur
 
-### Backend-Erweiterung (apps/bkg-api)
+### Backend-Erweiterung (core/backend/gateway)
 
 ```
-apps/bkg-api/src/
+core/backend/gateway/src/
 ├── app.module.ts
 ├── app.service.ts
 ├── main.ts
@@ -230,10 +230,10 @@ apps/bkg-api/src/
 
 ---
 
-### Frontend-Erweiterung (apps/bkg-web)
+### Frontend-Erweiterung (core/frontend/admin-ui)
 
 ```
-apps/bkg-web/src/app/
+core/frontend/admin-ui/src/app/
 ├── app.component.ts
 ├── app-routing.module.ts
 │
@@ -315,7 +315,7 @@ apps/bkg-web/src/app/
 
 **1. Candle Plugin**
 ```
-plugins/candle/
+core/plugins/candle/
 ├── src/
 │   ├── lib.rs
 │   ├── plugin.rs
@@ -337,7 +337,7 @@ plugins/candle/
 
 **2. RustyFace Plugin**
 ```
-plugins/rustyface/
+core/plugins/rustyface/
 ├── src/
 │   ├── lib.rs
 │   ├── plugin.rs
@@ -530,9 +530,9 @@ WS     /ws/plugins/:id/status                 # Real-time status
 
 ### Plugins
 ```
-✅ plugins/candle/                            (NEW)
-✅ plugins/rustyface/                         (NEW)
-✅ plugins/plugins.json                       (UPDATED)
+✅ core/plugins/candle/                            (NEW)
+✅ core/plugins/rustyface/                         (NEW)
+✅ core/plugins/plugins.json                       (UPDATED)
 ```
 
 ---

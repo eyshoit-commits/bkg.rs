@@ -46,30 +46,30 @@ docker run --rm \
   bkg:latest
 ```
 
-The supervisor inside the container boots the NestJS API. Plug-ins are launched as child processes using the definitions in `plugins/plugins.json`. Logs from each plug-in surface in the admin UI and the container stdout.
+The supervisor inside the container boots the NestJS API. Plug-ins are launched as child processes using the definitions in `core/plugins/plugins.json`. Logs from each plug-in surface in the admin UI and the container stdout.
 
 ## Local Development
 
 1. **Install dependencies**
    ```
-   (cd apps/bkg-api && npm install)
-   (cd apps/bkg-web && npm install)
+   (cd core/backend/gateway && npm install)
+   (cd core/frontend/admin-ui && npm install)
    ```
 2. **Run the API**
    ```
-   cd apps/bkg-api
+   cd core/backend/gateway
    npm run start:dev
    ```
 3. **Run the frontend**
    ```
-   cd apps/bkg-web
+   cd core/frontend/admin-ui
    npm start
    ```
 4. **Start plug-ins manually** (optional during development)
    ```
-   BKG_PLUGIN_BUS_PORT=43121 BKG_PLUGIN_NAME=llmserver plugins/llmserver/start.sh
-   BKG_PLUGIN_BUS_PORT=43121 BKG_PLUGIN_NAME=repoagent plugins/repoagent/start.sh
-   ADMIN_PASSWORD=devpass BKG_PLUGIN_BUS_PORT=43121 BKG_PLUGIN_NAME=apikeys plugins/apikeys/start.sh
+   BKG_PLUGIN_BUS_PORT=43121 BKG_PLUGIN_NAME=llmserver core/plugins/llmserver/start.sh
+   BKG_PLUGIN_BUS_PORT=43121 BKG_PLUGIN_NAME=repoagent core/plugins/repoagent/start.sh
+   ADMIN_PASSWORD=devpass BKG_PLUGIN_BUS_PORT=43121 BKG_PLUGIN_NAME=apikeys core/plugins/apikeys/start.sh
    ```
 
 Ensure `/data` exists (or override `BKG_DATABASE_PATH`) before launching the API locally so SQLite can create the database file.
