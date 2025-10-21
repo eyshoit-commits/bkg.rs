@@ -16,7 +16,7 @@ import { ApiKeyGuard } from './common/guards/api-key.guard';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'core', 'frontend', 'admin-ui', 'dist', 'bkg-web'),
+      rootPath: join(process.cwd(), 'core', 'frontend', 'admin-ui', 'dist'),
       serveRoot: '/',
       exclude: ['/v1*', '/auth*', '/admin*', '/health', '/api*'],
     }),
